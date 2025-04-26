@@ -1,0 +1,72 @@
+## ansible-playbook -i inventory.yml debian/tools/ceph/install_ceph.yml  --ask-pass
+
+---
+- name: Instalar y configurar un clúster de Ceph
+  hosts: ceph_servers
+  become: true
+  vars:
+    ceph_repo: "https://download.ceph.com/debian-squid/"
+    ceph_release_key: "https://download.ceph.com/keys/release.asc"
+    ceph_mon_ip: "192.168.10.121"  # Cambiar por la IP de c1
+  tasks:
+
+    - name: Instalar dependencias necesarias
+      apt:
+        name:
+          - wget
+          - curl
+          - lsb-release
+          - gnupg
+          - lvm2
+        state: present
+        update_cache: yes
+
+    - name: Agregar clave GPG de Ceph
+      shell: |
+        wget -q -O- 'https://download.ceph.com/keys/release.asc' |  gpg --dearmor -o /etc/apt/trusted.gpg.d/cephadm.gpg
+
+
+    - name: Agregar repositorio de Ceph
+      apt_repository:
+        repo: "deb {{ ceph_repo }} {{ ansible_distribution_release }} main"
+        state: present
+
+    - name: Actualizar caché de paquetes
+      apt:
+        update_cache: yes
+
+    - name: Instalar Cephadm
+      apt:
+        name: cephadm
+        state: present
+
+    # - name: por ajustar por ahora esta manual
+    #   ansible.builtin.shell:
+    #     cmd: "ssh-copy-id -f -i /etc/ceph/ceph.pub"
+    #   delegate_to: c1
+    #   become: yes
+    #   become_user: root
+
+    - name: Configurar Ceph en el nodo principal
+      environment:
+        PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      shell: |
+        cephadm bootstrap --mon-ip {{ ceph_mon_ip }} --no-cleanup-on-failure
+      args:
+        creates: /etc/ceph/ceph.conf
+      when: inventory_hostname == "c1"
+
+    - name: Agregar nodos al clúster
+      environment:
+        PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      command: >
+        cephadm shell -- ceph orch host add {{ hostvars[item].inventory_hostname }} {{ hostvars[item].ansible_host }}
+      loop: "{{ groups['ceph_servers'] | difference([inventory_hostname]) }}"
+      when: inventory_hostname == "c1"
+
+    - name: Configurar OSD en todos los nodos
+      environment:
+        PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      command: >
+        cephadm shell -- ceph orch apply osd --all-available-devices
+      when: inventory_hostname == "c1"

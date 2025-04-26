@@ -1,0 +1,58 @@
+#Secure Linux // ansible-playbook -i inventory.ini --extra-vars "@ufw-vars.yml" ufw.yml
+
+---
+- name: Instalar y configurar UFW en Debian/Ubuntu
+  hosts: all
+  become: true  # Escalamiento de privilegios
+  vars_files:
+    - vars.yml  # Cargar el archivo de variables
+  tasks:
+    - name: Instalar UFW en sistemas Debian/Ubuntu
+      package:
+        name: ufw
+        state: present
+
+    - name: Asegurarse de que UFW esté habilitado y funcionando
+      service:
+        name: ufw
+        state: started
+        enabled: true
+
+    - name: Permitir conexiones SSH (puerto configurado en var)
+      ufw:
+        rule: allow
+        to_port: "{{ ssh_port }}"
+        proto: tcp
+
+    - name: Permitir conexiones HTTP (puerto configurado en var)
+      ufw:
+        rule: allow
+        to_port: "{{ http_port }}"
+        proto: tcp
+
+    - name: Permitir conexiones HTTPS (puerto configurado en var)
+      ufw:
+        rule: allow
+        to_port: "{{ https_port }}"
+        proto: tcp
+
+    - name: Permitir conexiones desde localhost si está habilitado en var
+      ufw:
+        rule: allow
+        from: 127.0.0.1
+        to: any
+        proto: tcp
+      when: allow_local
+
+    - name: Asegurarse de que UFW está habilitado para iniciar en el arranque
+      ufw:
+        state: enabled
+
+    - name: Verificar el estado de UFW
+      command: ufw status verbose
+      register: ufw_status
+
+    - name: Mostrar el estado de UFW
+      debug:
+        var: ufw_status.stdout
+

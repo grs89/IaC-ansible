@@ -1,0 +1,54 @@
+---
+- name: Instalar y configurar KVM en Debian
+  hosts: KVM-grs
+  become: true
+  tasks:
+    - name: Actualizar la lista de paquetes
+      apt:
+        update_cache: yes
+
+    - name: Instalar paquetes necesarios para KVM
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - qemu-kvm
+        - libvirt-daemon
+        - libvirt-clients
+        - bridge-utils
+        - virtinst
+        - cpu-checker
+
+    - name: Verificar si la virtualización está habilitada en la CPU
+      shell: kvm-ok
+      register: kvm_ok
+      failed_when: kvm_ok.rc != 0
+      ignore_errors: true
+
+    - name: Mostrar mensaje si la virtualización no está habilitada
+      debug:
+        msg: >
+          La virtualización no está habilitada en este sistema.
+          Asegúrate de que esté activada en la BIOS/UEFI.
+      when: kvm_ok.failed
+
+    - name: Habilitar el servicio de libvirtd
+      systemd:
+        name: libvirtd
+        enabled: true
+        state: started
+
+    - name: Agregar el usuario actual al grupo libvirt
+      user:
+        name: "{{ ansible_user }}"
+        groups: libvirt
+        append: true
+
+    - name: Verificar el estado de KVM
+      shell: virsh list --all
+      register: kvm_status
+      changed_when: false
+
+    - name: Mostrar el estado de KVM
+      debug:
+        msg: "{{ kvm_status.stdout }}"

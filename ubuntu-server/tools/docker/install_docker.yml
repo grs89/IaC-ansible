@@ -1,0 +1,45 @@
+# ansible-playbook -i inventory.yml ubuntu-server/tools/docker/install_docker.yml --ask-become-pass
+---
+- name: Instalar Docker en Ubuntu Server 24.04
+  hosts: k8s_servers
+  become: yes  # Para obtener privilegios de superusuario
+  tasks:
+    - name: Actualizar lista de paquetes
+      apt:
+        update_cache: yes
+
+    - name: Instalar dependencias necesarias
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Añadir la clave GPG oficial de Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Obtener el nombre de la versión de Ubuntu
+      command: lsb_release -cs
+      register: ubuntu_version
+      changed_when: false
+
+    - name: Añadir el repositorio de Docker
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_version.stdout }} stable"
+        state: present
+
+    - name: Instalar Docker
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Asegurarse de que Docker esté corriendo
+      service:
+        name: docker
+        state: started
+        enabled: yes
+

@@ -1,0 +1,27 @@
+## ansible-playbook -i inventory.yml debian/ssh/ssh_copy_id.yml --ask-pass
+---
+- name: Copiar clave SSH a servidores remotos
+  hosts: ceph_servers
+  become: true
+  tasks:
+    - name: Copiar la clave pública SSH al servidor remoto
+      authorized_key:
+        user: "{{ ansible_user }}"
+        state: present
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+#  tasks para el usuario root
+
+    - name: Asegurarse de que el directorio .ssh exista
+      file:
+        path: /root/.ssh
+        state: directory
+        mode: '0700'
+        owner: root
+        group: root
+
+    - name: Copiar clave pública al archivo authorized_keys
+      authorized_key:
+        user: root
+        state: present
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"

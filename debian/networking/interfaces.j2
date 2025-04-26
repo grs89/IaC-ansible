@@ -1,0 +1,15 @@
+# Archivo de configuración de red para {{ inventory_hostname }}
+
+source /etc/network/interfaces.d/*
+
+# La interfaz loopback
+auto lo
+iface lo inet loopback
+
+# Cambiar segun nombre de interfaces
+auto enp1s0
+iface enp1s0 inet static
+    address {{ static_ip }}
+    netmask 255.255.255.0
+    gateway 192.168.10.1
+    dns-nameservers 8.8.8.8

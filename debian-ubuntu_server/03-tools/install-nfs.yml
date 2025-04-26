@@ -1,0 +1,55 @@
+# ansible-playbook -i inventory.yml debian-ubuntu_server/03-tools/install-nfs.yml --ask-become-pass
+
+---
+- name: Install NFS on Debian and Ubuntu
+  hosts: Debian-Server-v1
+  become: yes
+
+  vars:
+    nfs_exports:
+      - path: /data/nfs/
+        clients: "*(rw,sync,no_subtree_check,no_root_squash)"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install NFS server package
+      apt:
+        name: nfs-kernel-server
+        state: present
+
+    - name: Install NFS client package
+      apt:
+        name: nfs-common
+        state: present
+
+    - name: Crear directorio para exportar
+      file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: '0777'
+      loop: "{{ nfs_exports }}"
+
+    - name: Configurar /etc/exports
+      copy:
+        dest: /etc/exports
+        content: |
+          {% for export in nfs_exports %}
+          {{ export.path }} {{ export.clients }}
+          {% endfor %}
+        owner: root
+        group: root
+        mode: '0644'
+
+#    - name: Recargar configuración de NFS
+#      command: exportfs -ra
+
+    - name: Ensure NFS server is running and enabled
+      service:
+        name: nfs-kernel-server
+        state: restarted
+        enabled: yes

@@ -1,0 +1,18 @@
+# ansible-playbook -i inventory.yml debian-ubuntu_server/01-date/utc.yml --ask-become-pass
+---
+- name: Set time zone to Bogotá (UTC-5)
+  hosts: k8s_servers
+  become: true
+  tasks:
+    - name: Set the system timezone to Bogotá
+      ansible.builtin.command:
+        cmd: timedatectl set-timezone America/Bogota
+
+    - name: Verify the current timezone
+      ansible.builtin.command:
+        cmd: timedatectl show --property=Timezone
+      register: timezone_output
+
+    - name: Show current timezone
+      debug:
+        msg: "The current timezone is {{ timezone_output.stdout }}"

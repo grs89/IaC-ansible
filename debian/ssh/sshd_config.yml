@@ -1,0 +1,34 @@
+## ansible-playbook -i inventory.yml debian/ssh/sshd_config.yml --ask-pass
+---
+- name: Configurar SSH para permitir autenticación por clave pública
+  hosts: ceph_servers
+  become: yes
+  tasks:
+    - name: Asegurarse de que PermitRootLogin esté habilitado en sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin yes'
+        state: present
+        validate: '/usr/sbin/sshd -t -f %s'
+
+    - name: Asegurarse de que PubkeyAuthentication está configurado como "yes"
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PubkeyAuthentication'
+        line: 'PubkeyAuthentication yes'
+        state: present
+        validate: '/usr/sbin/sshd -t -f %s'
+
+    - name: Asegurarse de que AuthorizedKeysFile está configurado correctamente
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?AuthorizedKeysFile'
+        line: 'AuthorizedKeysFile .ssh/authorized_keys'
+        state: present
+        validate: '/usr/sbin/sshd -t -f %s'
+
+    - name: Reiniciar el servicio SSH para aplicar los cambios
+      service:
+        name: ssh
+        state: restarted

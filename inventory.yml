@@ -1,0 +1,121 @@
+all:
+  hosts:
+
+    Server-grs:
+      ansible_host: 179.61.15.10
+      ansible_user: grs
+      ansible_port: 2022
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      become: true
+      ansible_become_method: sudo
+      ansible_become_user: root
+      ansible_become_pass: "134679"
+      static_ip: 192.168.10.100
+
+    KVM-grs:
+      ansible_host: 192.168.10.100
+      ansible_user: grs
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      become: true
+      ansible_become_method: su
+      ansible_become_user: root
+      ansible_become_pass: "134679"
+      static_ip: 192.168.10.100
+
+    FreePBX:
+      ansible_host: 192.168.10.58
+      ansible_user: grs
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      become: true
+      ansible_become_method: su
+      ansible_become_user: root
+      ansible_become_pass: "134679"
+      static_ip: 192.168.10.110
+
+    Debian-Testv1:
+      ansible_host: 192.168.10.59
+      ansible_user: grs
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      become: true
+      ansible_become_method: su
+      ansible_become_user: root
+      ansible_become_pass: "134679"
+      static_ip: 192.168.10.111
+
+    Debian-Server-v1:
+      ansible_host: 192.168.10.112
+      ansible_user: grs
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      become: true
+      ansible_become_method: su
+      ansible_become_user: root
+      ansible_become_pass: "134679"
+      static_ip: 192.168.10.112
+
+  children:
+    ubuntu_servers:
+      hosts:
+        docker1:
+          ansible_host: 192.168.10.101
+          ansible_user: grs
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          ansible_become_method: sudo
+          ansible_become_user: root
+          ansible_become_pass: "134679"
+          static_ip:  192.168.10.101
+
+    k8s_servers:
+      hosts:
+        k8s-cp:
+          ansible_host: 192.168.10.102
+          ansible_user: grs
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          ansible_become_method: sudo
+          ansible_become_user: root
+          ansible_become_pass: "134679"
+          static_ip: 192.168.10.102
+        k8s-w1:
+          ansible_host: 192.168.10.103
+          ansible_user: grs
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          ansible_become_method: sudo
+          ansible_become_user: root
+          ansible_become_pass: "134679"
+          static_ip: 192.168.10.103
+        k8s-w2:
+          ansible_host: 192.168.10.104
+          ansible_user: grs
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          ansible_become_method: sudo
+          ansible_become_user: root
+          ansible_become_pass: "134679"
+          static_ip: 192.168.10.104
+
+    ceph_servers:
+      hosts:
+        c1:
+          ansible_host: 192.168.10.121
+          ansible_user: grs
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          ansible_become_method: su
+          ansible_become_user: root
+          ansible_become_pass: "134679"
+          static_ip: 192.168.10.121
+        c2:
+          ansible_host: 192.168.10.122
+          ansible_user: grs
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          ansible_become_method: su
+          ansible_become_user: root
+          ansible_become_pass: "134679"
+          static_ip: 192.168.10.122
+        c3:
+          ansible_host: 192.168.10.123
+          ansible_user: grs
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+          ansible_become_method: su
+          ansible_become_user: root
+          ansible_become_pass: "134679"
+          static_ip: 192.168.10.123
+
+
