@@ -1,14 +1,15 @@
+# ansible-playbook -i inventory.yml ubuntu-server/02-networking/disable-network-config.yml --ask-become-pass
 ---
 - name: Crear carpeta, copiar scripts, dar permisos y crear cron
   hosts: servidores
   become: true
   vars:
-    destino: /opt/mis_scripts
+    destino: /etc/auto
     cron_user: root
     cron_minute: "*/5"  # cada 5 minutos, cambia si lo necesitas
 
   tasks:
-    - name: Crear carpeta destino
+    - name: Crear carpeta auto
       file:
         path: "{{ destino }}"
         state: directory
