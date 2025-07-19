@@ -1,0 +1,35 @@
+---
+- name: Crear carpeta, copiar scripts y configurar cron en server1
+    hosts: server1
+    become: yes
+    vars:
+        destino_scripts: /etc/auto
+        origen_scripts: ./scripts
+
+    tasks:
+        - name: Crear carpeta destino
+            file:
+                path: "{{ destino_scripts }}"
+                state: directory
+                owner: root
+                group: root
+                mode: '0755'
+
+        - name: Copiar scripts a la carpeta destino
+            copy:
+                src: "{{ item }}"
+                dest: "{{ destino_scripts }}/"
+                mode: '0755'
+            with_fileglob:
+                - "{{ origen_scripts }}/*"
+            register: scripts_copiados
+
+        - name: Configurar cron para cada script copiado
+            cron:
+                name: "Ejecutar {{ item.dest | basename }}"
+                user: root
+                job: "{{ destino_scripts }}/{{ item.dest | basename }}"
+                minute: "0"
+                hour: "0"
+            loop: "{{ scripts_copiados.results }}"
+            when: item is defined and item.dest is defined
