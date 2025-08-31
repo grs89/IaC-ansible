@@ -7,9 +7,9 @@ auto lo
 iface lo inet loopback
 
 # Cambiar segun nombre de interfaces
-auto enp1s0
-iface enp1s0 inet static
+auto enp0s1
+iface enp0s1 inet static
     address {{ static_ip }}
     netmask 255.255.255.0
-    gateway 192.168.10.1
-    dns-nameservers 8.8.8.8
+    gateway {{ gateway }}
+    dns-nameservers {{ dns_server }}

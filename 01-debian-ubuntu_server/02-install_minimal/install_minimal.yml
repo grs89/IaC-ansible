@@ -1,4 +1,4 @@
-## ansible-playbook -i inventory.yml debian-ubuntu_server/02-install_minimal/install_minimal.yml --ask-pass
+## ansible-playbook -i inventory.yml 01-debian-ubuntu_server/02-install_minimal/install_minimal.yml --ask-pass
 
 ---
 - name: Instalar una lista de paquetes en Debian/Ubuntu

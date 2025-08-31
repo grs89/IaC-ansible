@@ -1,7 +1,7 @@
-## ansible-playbook -i inventory.yml debian/ssh/sshd_config.yml --ask-pass
+## ansible-playbook -i inventory.yml 02-debian/ssh/sshd_config.yml --ask-pass
 ---
 - name: Configurar SSH para permitir autenticación por clave pública
-  hosts: ceph_servers
+  hosts: k8s_servers
   become: yes
   tasks:
     - name: Asegurarse de que PermitRootLogin esté habilitado en sshd_config

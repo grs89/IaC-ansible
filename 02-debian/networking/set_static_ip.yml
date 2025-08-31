@@ -1,14 +1,14 @@
-## ansible-playbook -i inventory.yml debian/networking/set_static_ip.yml --ask-pass
+## ansible-playbook -i inventory.yml 02-debian/networking/set_static_ip.yml --ask-pass
 ## Server fisico - ajustar interfaces en la plantilla de interfaces.j2 cuando sea virtual
 
 ---
 - name: Configurar IP estática en servidores Debian
-  hosts: ceph_servers
+  hosts: k8s_servers
   become: yes  # Ejecutar como superusuario
   vars:
     static_ip: "{{ hostvars[inventory_hostname].static_ip }}"
-    gateway: "192.168.10.1"  # Cambia esto con la puerta de enlace de tu red
-    dns_server: "8.8.8.8"    # Cambia esto con tu servidor DNS
+    gateway: "{{ hostvars[inventory_hostname].gateway }}"  # Cambia esto con la puerta de enlace de tu red
+    dns_server: "{{ hostvars[inventory_hostname].dns_server }}"     # Cambia esto con tu servidor DNS
   tasks:
     - name: Configurar IP estática usando archivo Interfaces
       template:

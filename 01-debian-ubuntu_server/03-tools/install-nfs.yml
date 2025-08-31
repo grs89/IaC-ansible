@@ -1,4 +1,4 @@
-# ansible-playbook -i inventory.yml debian-ubuntu_server/03-tools/install-nfs.yml --ask-become-pass
+# ansible-playbook -i inventory.yml 01-debian-ubuntu_server/03-tools/install-nfs.yml --ask-become-pass
 
 ---
 - name: Install NFS on Debian and Ubuntu
