@@ -1,4 +1,4 @@
-# ansible-playbook -i inventory.yml ubuntu-server/tools/k8s/install-k8s.yml --ask-become-pass
+# ansible-playbook -i inventory.yml 02-ubuntu-server/tools/k8s/install_k8s.yml --ask-become-pass
 
 ---
 - name: Install Kubernetes on Ubuntu nodes

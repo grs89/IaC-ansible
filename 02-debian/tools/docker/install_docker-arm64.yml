@@ -1,4 +1,4 @@
-## ansible-playbook -i inventory.yml 02-debian/tools/docker/install_docker.yml --ask-pass
+## ansible-playbook -i inventory.yml 02-debian/tools/docker/install_docker-arm64.yml --ask-pass
 
 ---
 - name: Instalar Docker en Debian 13
