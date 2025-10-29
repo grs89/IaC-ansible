@@ -1,2 +1,48 @@
-.VS*
-.DS*
+# Ansible Vault files
+*.vault
+vault.yml
+vault_pass.txt
+.ansible/
+
+# SSH keys
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# Retry files
+*.retry
+
+# Logs
+*.log
+ansible.log
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary inventory files
+inventory_temp.yml
+inventory.local.yml
+
+

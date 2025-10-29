@@ -1,0 +1,31 @@
+---
+# Playbook: install_kubernetes.yml
+# Descripción: Instalar Kubernetes en cluster
+# Uso: ansible-playbook playbooks/install_kubernetes.yml --ask-become-pass
+
+- name: Instalar Kubernetes en cluster
+  hosts: k8s_servers
+  become: true
+  
+  pre_tasks:
+    - name: Instalar Docker primero (requisito previo)
+      include_role:
+        name: docker
+      tags:
+        - docker
+        - k8s
+
+  roles:
+    - role: kubernetes
+      vars:
+        static_ip: "{{ hostvars[inventory_hostname].static_ip }}"
+      tags:
+        - kubernetes
+        - k8s
+
+  post_tasks:
+    - name: Mensaje de instalación completada
+      debug:
+        msg: "Kubernetes instalado en {{ inventory_hostname }}. Ejecutar: kubeadm init en el control plane"
+
+

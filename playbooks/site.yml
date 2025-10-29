@@ -1,0 +1,18 @@
+---
+# Playbook: site.yml
+# Descripción: Playbook principal que aplica configuración a todos los servidores
+# Uso: ansible-playbook playbooks/site.yml --ask-become-pass
+
+- name: Configurar servidores base
+  hosts: all
+  become: true
+  roles:
+    - common
+    - ssh
+    - hardening
+  tags:
+    - common
+    - ssh
+    - hardening
+
+

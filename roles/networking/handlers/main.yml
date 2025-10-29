@@ -1,0 +1,11 @@
+---
+# Handlers para el role networking
+- name: restart networking
+  systemd:
+    name: networking
+    state: restarted
+
+- name: apply netplan
+  command: netplan apply
+
+

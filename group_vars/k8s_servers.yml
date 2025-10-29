@@ -1,0 +1,14 @@
+---
+# Variables específicas para servidores Kubernetes
+
+# Versión de Kubernetes a instalar
+k8s_version: "1.28"
+
+# Pod network CIDR
+pod_network_cidr: "10.244.0.0/16"
+
+# Cluster name
+cluster_name: "k8s-cluster"
+
+# Usuario para Kubernetes
+k8s_user: "k8sadmin"

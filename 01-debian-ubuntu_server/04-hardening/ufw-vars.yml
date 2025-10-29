@@ -1,7 +1,0 @@
-# vars.yml
-
-# Configuración de reglas de firewall
-ssh_port: 22        # Puerto para SSH
-http_port: 80       # Puerto para HTTP
-https_port: 443     # Puerto para HTTPS
-allow_local: true   # Permitir conexiones desde localhost

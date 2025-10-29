@@ -1,0 +1,118 @@
+---
+# Role: kubernetes
+# Descripción: Instalación de Kubernetes (kubelet, kubeadm, kubectl)
+# Autor: Sistema Ansible
+# Versión: 1.0
+
+- name: Determinar versión de Kubernetes a instalar
+  set_fact:
+    k8s_version: "{{ k8s_version | default('1.28') }}"
+
+- name: Instalar paquetes requeridos
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+
+- name: Crear directorio para keyrings
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Agregar GPG key de Kubernetes
+  shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v{{ k8s_version.split('.')[0:2]|join('.') }}/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name: Establecer permisos correctos para GPG key
+  file:
+    path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    mode: '0644'
+
+- name: Agregar repositorio de Kubernetes
+  copy:
+    dest: /etc/apt/sources.list.d/kubernetes.list
+    content: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version.split('.')[0:2]|join('.') }}/deb/ /'
+    mode: '0644'
+
+- name: Actualizar caché de paquetes
+  apt:
+    update_cache: yes
+
+- name: Instalar binarios de Kubernetes
+  apt:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+
+- name: Remover swap de /etc/fstab
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  loop:
+    - swap
+    - none
+
+- name: Deshabilitar swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: Configurar IP del nodo para Kubernetes
+  lineinfile:
+    path: /etc/default/kubelet
+    line: KUBELET_EXTRA_ARGS=--node-ip={{ static_ip }}
+    create: yes
+  notify: restart kubelet
+
+- name: Crear archivo de configuración para módulos containerd
+  copy:
+    dest: /etc/modules-load.d/containerd.conf
+    content: |
+      overlay
+      br_netfilter
+    mode: '0644'
+
+- name: Cargar módulo overlay
+  modprobe:
+    name: overlay
+    state: present
+
+- name: Cargar módulo br_netfilter
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Crear archivo de configuración de sysctl para Kubernetes
+  copy:
+    dest: /etc/sysctl.d/kubernetes.conf
+    content: |
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.bridge.bridge-nf-call-iptables = 1
+      net.ipv4.ip_forward = 1
+    mode: '0644'
+
+- name: Aplicar configuraciones sysctl
+  command: sysctl --system
+
+- name: Habilitar kubelet
+  systemd:
+    name: kubelet
+    enabled: yes
+
+- name: Verificar versión de Kubernetes instalada
+  command: kubelet --version
+  register: kubelet_version
+  changed_when: false
+
+- name: Mostrar versión instalada
+  debug:
+    msg: "{{ kubelet_version.stdout }}"
+
+

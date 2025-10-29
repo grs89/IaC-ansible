@@ -1,0 +1,14 @@
+---
+# Playbook: install_docker.yml
+# Descripción: Instalar Docker en servidores
+# Uso: ansible-playbook playbooks/install_docker.yml
+
+- name: Instalar Docker
+  hosts: all
+  become: true
+  
+  roles:
+    - docker
+  tags:
+    - docker
+    - containers

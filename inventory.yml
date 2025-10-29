@@ -1,58 +1,70 @@
+---
 all:
   hosts:
+    # Servidor Docker actual
+    Servidor_Docker:
+      ansible_host: 192.168.20.218
+      ansible_user: grs
+      ansible_become: true
+      ansible_become_method: sudo
+      # Configurar SSH key si es necesario
+      # ansible_ssh_private_key_file: ~/.ssh/id_rsa
 
+    # Servidor principal
     Server-grs:
       ansible_host: 179.61.15.10
       ansible_user: grs
       ansible_port: 2022
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      become: true
+      ansible_become: true
       ansible_become_method: sudo
-      ansible_become_user: root
-      ansible_become_pass: "134679"
       static_ip: 192.168.10.100
+      # Configurar password con vault o --ask-become-pass
 
+    # Servidor KVM/Proxmox
     KVM-grs:
       ansible_host: 192.168.10.100
       ansible_user: grs
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      become: true
+      ansible_become: true
       ansible_become_method: su
-      ansible_become_user: root
-      ansible_become_pass: "134679"
       static_ip: 192.168.10.100
+      # Configurar password con vault o --ask-become-pass
 
+    # Servidor FreePBX
     FreePBX:
       ansible_host: 192.168.10.58
       ansible_user: grs
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      become: true
+      ansible_become: true
       ansible_become_method: su
-      ansible_become_user: root
-      ansible_become_pass: "134679"
       static_ip: 192.168.10.110
+      # Configurar password con vault o --ask-become-pass
 
+    # Servidor Debian Test
     Debian-Testv1:
       ansible_host: 192.168.10.59
       ansible_user: grs
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      become: true
+      ansible_become: true
       ansible_become_method: su
-      ansible_become_user: root
-      ansible_become_pass: "134679"
       static_ip: 192.168.10.111
+      # Configurar password con vault o --ask-become-pass
 
+    # Servidor Debian
     Debian-Server-v1:
-      ansible_host: 192.168.10.112
+      ansible_host: 192.168.20.115
       ansible_user: grs
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      become: true
+      ansible_become: true
       ansible_become_method: su
-      ansible_become_user: root
-      ansible_become_pass: "134679"
-      static_ip: 192.168.10.112
+      static_ip: 192.168.20.115
+      gateway: 192.168.20.1
+      dns_server: 8.8.8.8
+      # Configurar password con vault o --ask-become-pass
 
   children:
+    # Grupo de servidores Ubuntu
     ubuntu_servers:
       hosts:
         docker1:
@@ -60,68 +72,76 @@ all:
           ansible_user: grs
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           ansible_become_method: sudo
-          ansible_become_user: root
-          ansible_become_pass: "134679"
-          static_ip:  192.168.10.101
+          ansible_become: true
+          static_ip: 192.168.10.101
+          # Configurar password con vault o --ask-become-pass
 
+    # Cluster de Kubernetes
     k8s_servers:
       hosts:
-        k8s-cp:
+        k8s-cp:  # Control Plane
           ansible_host: 192.168.64.102
           ansible_user: grs
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           ansible_become_method: su
-          ansible_become_user: root
-          ansible_become_pass: "134679"
+          ansible_become: true
           static_ip: 192.168.64.102
           gateway: 192.168.64.1
           dns_server: 8.8.8.8
-        k8s-w1:
+          # Configurar password con vault o --ask-become-pass
+        k8s-w1:  # Worker 1
           ansible_host: 192.168.64.103
           ansible_user: grs
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           ansible_become_method: su
-          ansible_become_user: root
-          ansible_become_pass: "134679"
+          ansible_become: true
           static_ip: 192.168.64.103
           gateway: 192.168.64.1
           dns_server: 8.8.8.8
-        k8s-w2:
+          # Configurar password con vault o --ask-become-pass
+        k8s-w2:  # Worker 2
           ansible_host: 192.168.64.104
           ansible_user: grs
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           ansible_become_method: su
-          ansible_become_user: root
-          ansible_become_pass: "134679"
+          ansible_become: true
           static_ip: 192.168.64.104
           gateway: 192.168.64.1
           dns_server: 8.8.8.8
+          # Configurar password con vault o --ask-become-pass
 
+    # Cluster de Ceph
     ceph_servers:
       hosts:
-        c1:
+        ceph-c1:
           ansible_host: 192.168.10.121
           ansible_user: grs
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           ansible_become_method: su
-          ansible_become_user: root
-          ansible_become_pass: "134679"
+          ansible_become: true
           static_ip: 192.168.10.121
-        c2:
+          # Configurar password con vault o --ask-become-pass
+        ceph-c2:
           ansible_host: 192.168.10.122
           ansible_user: grs
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           ansible_become_method: su
-          ansible_become_user: root
-          ansible_become_pass: "134679"
+          ansible_become: true
           static_ip: 192.168.10.122
-        c3:
+          # Configurar password con vault o --ask-become-pass
+        ceph-c3:
           ansible_host: 192.168.10.123
           ansible_user: grs
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
           ansible_become_method: su
-          ansible_become_user: root
-          ansible_become_pass: "134679"
+          ansible_become: true
           static_ip: 192.168.10.123
+          # Configurar password con vault o --ask-become-pass
 
+    # Grupo para servidores Debian
+    debian_servers:
+      hosts:
+        FreePBX:
+        Debian-Testv1:
+        Debian-Server-v1:
 

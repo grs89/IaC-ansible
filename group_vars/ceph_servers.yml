@@ -1,0 +1,12 @@
+---
+# Variables específicas para servidores Ceph
+
+# Versión de Ceph
+ceph_version: "quincy"
+
+# Network para cluster
+public_network: "192.168.10.0/24"
+cluster_network: "192.168.10.0/24"
+
+# Monitors (auto-detected)
+ceph_mon_interface: "eth0"

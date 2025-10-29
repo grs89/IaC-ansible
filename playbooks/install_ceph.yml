@@ -1,0 +1,16 @@
+---
+# Playbook: install_ceph.yml
+# Descripción: Instalar cluster Ceph
+# Uso: ansible-playbook playbooks/install_ceph.yml --ask-become-pass
+
+- name: Instalar cluster Ceph
+  hosts: ceph_servers
+  become: true
+
+  roles:
+    - role: ceph
+      tags:
+        - ceph
+        - storage
+
+

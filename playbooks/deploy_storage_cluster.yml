@@ -1,0 +1,21 @@
+---
+# Playbook: deploy_storage_cluster.yml
+# Descripción: Desplegar cluster de almacenamiento Ceph
+# Uso: ansible-playbook playbooks/deploy_storage_cluster.yml --ask-become-pass
+
+- name: Desplegar cluster de almacenamiento
+  hosts: ceph_servers
+  become: true
+
+  roles:
+    - common
+    - ssh
+    - networking
+    - hardening
+    - ceph
+  tags:
+    - storage
+    - ceph
+    - cluster
+
+

@@ -1,0 +1,24 @@
+---
+# Valores por defecto para el role hardening
+ufw_enabled: true
+http_enabled: false
+https_enabled: false
+
+fail2ban_bantime: 600
+fail2ban_findtime: 600
+fail2ban_maxretry: 5
+fail2ban_ignore_ips: []
+
+run_lynis_audit: false
+configure_password_policy: true
+configure_sysctl: true
+
+password_minlen: 12
+password_minclass: 4
+password_maxrepeat: 3
+password_maxclassrepeat: 2
+password_minupper: 1
+password_minlower: 1
+password_minother: 1
+
+

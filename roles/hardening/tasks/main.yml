@@ -1,0 +1,145 @@
+---
+# Role: hardening
+# Descripción: Hardening de seguridad con Fail2Ban, Auditd, UFW y políticas de contraseñas
+# Autor: Sistema Ansible
+# Versión: 1.0
+
+- name: Instalar y configurar UFW
+  apt:
+    name: ufw
+    state: present
+
+- name: Permitir conexiones SSH
+  ufw:
+    rule: allow
+    to_port: "{{ ssh_port | default(22) }}"
+    proto: tcp
+
+- name: Permitir conexiones HTTP
+  ufw:
+    rule: allow
+    to_port: "{{ http_port | default(80) }}"
+    proto: tcp
+  when: http_enabled | default(false)
+
+- name: Permitir conexiones HTTPS
+  ufw:
+    rule: allow
+    to_port: "{{ https_port | default(443) }}"
+    proto: tcp
+  when: https_enabled | default(false)
+
+- name: Habilitar UFW
+  ufw:
+    state: enabled
+  when: ufw_enabled | default(true)
+
+- name: Instalar Fail2Ban
+  package:
+    name: fail2ban
+    state: present
+
+- name: Configurar Fail2Ban para proteger SSH
+  copy:
+    dest: /etc/fail2ban/jail.local
+    content: |
+      [DEFAULT]
+      ignoreip = 127.0.0.1/8 {% if fail2ban_ignore_ips is defined %}{% for ip in fail2ban_ignore_ips %} {{ ip }} {% endfor %}{% endif %}
+      bantime  = {{ fail2ban_bantime | default(600) }}
+      findtime  = {{ fail2ban_findtime | default(600) }}
+      maxretry = {{ fail2ban_maxretry | default(5) }}
+      
+      [sshd]
+      enabled = true
+      port = {{ ssh_port | default(22) }}
+    mode: '0644'
+
+- name: Reiniciar Fail2Ban
+  service:
+    name: fail2ban
+    state: restarted
+
+- name: Instalar auditd
+  package:
+    name: auditd
+    state: present
+
+- name: Configurar auditd
+  copy:
+    dest: /etc/audit/audit.rules
+    content: |
+      -D
+      -b 8192
+      -w /etc/passwd -p wa -k passwd_changes
+      -w /etc/shadow -p wa -k shadow_changes
+      -w /etc/ssh/sshd_config -p wa -k ssh_config_changes
+      -w /etc/sudoers -p wa -k sudoers_changes
+      -w /var/log/auth.log -p wa -k authlog
+    mode: '0640'
+
+- name: Reiniciar auditd
+  service:
+    name: auditd
+    state: restarted
+
+- name: Instalar lynis
+  package:
+    name: lynis
+    state: present
+
+- name: Ejecutar escaneo de seguridad con Lynis
+  command: lynis audit system
+  register: lynis_output
+  when: run_lynis_audit | default(false)
+
+- name: Mostrar resultados de Lynis
+  debug:
+    var: lynis_output.stdout
+  when: run_lynis_audit | default(false) and lynis_output is defined
+
+- name: Configurar políticas de contraseñas
+  copy:
+    dest: /etc/security/pwquality.conf
+    content: |
+      minlen = {{ password_minlen | default(12) }}
+      minclass = {{ password_minclass | default(4) }}
+      maxrepeat = {{ password_maxrepeat | default(3) }}
+      maxclassrepeat = {{ password_maxclassrepeat | default(2) }}
+      minupper = {{ password_minupper | default(1) }}
+      minlower = {{ password_minlower | default(1) }}
+      minother = {{ password_minother | default(1) }}
+    mode: '0644'
+  when: configure_password_policy | default(true)
+
+- name: Aplicar configuraciones de sysctl
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^{{ item.key }}'
+    line: '{{ item.key }} = {{ item.value }}'
+    state: present
+  loop:
+    - { key: 'net.ipv4.tcp_syncookies', value: '1' }
+    - { key: 'net.ipv4.conf.all.rp_filter', value: '1' }
+    - { key: 'net.ipv4.conf.default.accept_source_route', value: '0' }
+  when: configure_sysctl | default(true)
+
+- name: Aplicar configuraciones de red
+  command: sysctl -p
+  when: configure_sysctl | default(true)
+
+- name: Instalar pwquality
+  package:
+    name: libpam-pwquality
+    state: present
+  when: configure_password_policy | default(true)
+
+- name: Configurar PAM para usar pwquality
+  lineinfile:
+    path: /etc/pam.d/common-password
+    regexp: '^password\s+required\s+pam_unix.so'
+    line: 'password required pam_pwquality.so retry=3'
+    state: present
+    backup: yes
+  when: configure_password_policy | default(true)
+
+

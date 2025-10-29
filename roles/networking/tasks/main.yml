@@ -1,0 +1,54 @@
+---
+# Role: networking
+# Descripción: Configuración de red para Debian/Ubuntu
+# Autor: Sistema Ansible
+# Versión: 1.0
+
+- name: Determinar tipo de distribución
+  set_fact:
+    is_ubuntu: "{{ ansible_distribution | lower == 'ubuntu' }}"
+    is_debian: "{{ ansible_distribution | lower == 'debian' }}"
+
+- name: Configurar red estática en Debian
+  template:
+    src: "{{ network_template }}"
+    dest: "{{ network_config_dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: is_debian
+  vars:
+    network_template: "{{ networking_template | default('interfaces.j2') }}"
+    network_config_dest: "{{ '/etc/network/interfaces' }}"
+  notify: restart networking
+
+- name: Configurar red estática en Ubuntu (Netplan)
+  template:
+    src: "{{ netplan_template }}"
+    dest: "{{ netplan_config_dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: is_ubuntu
+  vars:
+    netplan_template: "{{ 'netplan_static_config.j2' }}"
+    netplan_config_dest: "{{ '/etc/netplan/01-netcfg.yaml' }}"
+  notify: apply netplan
+
+- name: (Opción) Deshabilitar netplan en Ubuntu
+  file:
+    path: /etc/netplan
+    state: directory
+    mode: '0000'
+  when: 
+    - is_ubuntu
+    - networking_disable_netplan | default(false) | bool
+
+- name: Información de red configurada
+  debug:
+    msg:
+      - "IP estática: {{ static_ip }}"
+      - "Gateway: {{ gateway }}"
+      - "DNS: {{ dns_server }}"
+
+

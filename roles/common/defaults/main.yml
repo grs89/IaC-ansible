@@ -1,0 +1,5 @@
+---
+# Valores por defecto para el role common
+hostname: "{{ ansible_hostname }}"
+
+

@@ -1,0 +1,14 @@
+---
+# Variables específicas para servidores Ubuntu
+
+# Versión de Ubuntu
+ubuntu_version: "22.04"
+
+# Configuración de firewall
+ufw_enabled: true
+ufw_default_policy: "deny"
+
+# Servicios a habilitar por defecto
+default_services:
+  - docker
+  - ssh

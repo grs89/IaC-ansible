@@ -1,0 +1,7 @@
+---
+# Valores por defecto para el role networking
+networking_template: interfaces.j2
+netplan_template: netplan_static_config.j2
+networking_disable_netplan: false
+
+

@@ -1,0 +1,16 @@
+---
+# Playbook: install_kvm.yml
+# Descripción: Instalar KVM/QEMU para virtualización
+# Uso: ansible-playbook playbooks/install_kvm.yml --ask-become-pass
+
+- name: Instalar KVM
+  hosts: all
+  become: true
+
+  roles:
+    - kvm
+  tags:
+    - kvm
+    - virtualization
+
+

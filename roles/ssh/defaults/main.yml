@@ -1,0 +1,9 @@
+---
+# Valores por defecto para el role ssh
+sshd_config_file: /etc/ssh/sshd_config
+ssh_service_name: sshd
+ssh_permit_root_login: 'no'
+ssh_port: 22
+ssh_disable_password_auth: true
+
+

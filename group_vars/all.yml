@@ -1,0 +1,15 @@
+---
+# Variables globales para todos los hosts
+
+# Configuración SSH
+ssh_private_key_file: ~/.ssh/id_rsa
+
+# DNS por defecto
+default_dns_server: 8.8.8.8
+default_dns_secondary: 8.8.4.4
+
+# Timeout para conexiones
+connection_timeout: 30
+
+# Configuración de logs
+log_path: /var/log/ansible

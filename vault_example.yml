@@ -1,0 +1,38 @@
+---
+# Archivo de ejemplo para Ansible Vault
+# Este archivo contiene credenciales encriptadas
+# 
+# Para crear este archivo:
+# ansible-vault create vault.yml
+#
+# Para editar:
+# ansible-vault edit vault.yml
+#
+# Para usar en playbooks:
+# ansible-playbook playbook.yml --ask-vault-pass
+# o
+# ansible-playbook playbook.yml --vault-password-file ~/.ansible_vault_pass
+
+# Ejemplo de contraseñas de servicios (descomenta y encripta con vault)
+# database_passwords:
+#   mysql_root_password: "tu_password_mysql"
+#   postgres_password: "tu_password_postgres"
+
+# Ejemplo de tokens de API
+# api_tokens:
+#   dockerhub: "tu_token_dockerhub"
+#   github: "tu_github_token"
+
+# Credenciales de servidores (no usar en producción sin vault)
+# server_credentials:
+#   grs:
+#     password: "tu_password_seguro"
+#   root:
+#     password: "tu_password_root"
+
+# Claves SSH adicionales si es necesario
+# ssh_keys:
+#   private_key: |
+#     -----BEGIN OPENSSH PRIVATE KEY-----
+#     ...
+#     -----END OPENSSH PRIVATE KEY-----

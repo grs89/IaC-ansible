@@ -1,0 +1,18 @@
+# Archivo de configuración Netplan para {{ inventory_hostname }}
+# Generado por Ansible
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    {{ network_interface | default('enp1s0') }}:  # Ajustar según interfaz
+      dhcp4: no
+      addresses:
+        - {{ static_ip }}/{{ netmask_cidr | default('24') }}
+      gateway4: {{ gateway }}
+      nameservers:
+        addresses:
+          - {{ dns_server | default('8.8.8.8') }}
+          - {{ dns_secondary | default('8.8.4.4') }}
+
+

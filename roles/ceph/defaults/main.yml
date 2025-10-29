@@ -1,0 +1,10 @@
+---
+# Valores por defecto para el role ceph
+ceph_repo: "https://download.ceph.com/debian-quincy/"
+ceph_version: "quincy"
+ceph_mon_ip: "{{ hostvars[groups['ceph_servers'][0]].static_ip }}"
+ceph_bootstrap: true
+ceph_add_hosts: true
+ceph_apply_osd: true
+
+

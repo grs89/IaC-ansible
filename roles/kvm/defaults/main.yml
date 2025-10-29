@@ -1,0 +1,5 @@
+---
+# Valores por defecto para el role kvm
+kvm_enabled: true
+
+

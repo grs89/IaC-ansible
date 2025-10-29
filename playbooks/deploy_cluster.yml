@@ -1,0 +1,21 @@
+---
+# Playbook: deploy_cluster.yml
+# Descripción: Despliegue completo de infraestructura - Cluster Kubernetes + Ceph
+# Uso: ansible-playbook playbooks/deploy_cluster.yml --ask-become-pass
+
+- name: Desplegar infraestructura completa
+  hosts: all
+  become: true
+  
+  roles:
+    - common
+    - ssh
+    - networking
+    - docker
+    - kubernetes
+    - hardening
+  tags:
+    - cluster
+    - all
+
+

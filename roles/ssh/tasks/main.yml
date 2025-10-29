@@ -1,0 +1,85 @@
+---
+# Role: ssh
+# Descripción: Configuración de SSH
+# Autor: Sistema Ansible
+# Versión: 1.0
+
+- name: Asegurar PubkeyAuthentication está habilitado
+  lineinfile:
+    path: "{{ sshd_config_path }}"
+    regexp: '^#?PubkeyAuthentication'
+    line: 'PubkeyAuthentication yes'
+    state: present
+    backup: yes
+  vars:
+    sshd_config_path: "{{ sshd_config_file | default('/etc/ssh/sshd_config') }}"
+  tags:
+    - ssh
+    - ssh_config
+
+- name: Asegurar AuthorizedKeysFile está configurado
+  lineinfile:
+    path: "{{ sshd_config_path }}"
+    regexp: '^#?AuthorizedKeysFile'
+    line: 'AuthorizedKeysFile .ssh/authorized_keys'
+    state: present
+    backup: yes
+  tags:
+    - ssh
+    - ssh_config
+
+- name: Configurar PermitRootLogin
+  lineinfile:
+    path: "{{ sshd_config_path }}"
+    regexp: '^#?PermitRootLogin'
+    line: "{{ ssh_permit_root_login | default('no') }}"
+    state: present
+    backup: yes
+    validate: '/usr/sbin/sshd -t -f %s'
+  tags:
+    - ssh
+    - ssh_config
+
+- name: Configurar puerto SSH
+  lineinfile:
+    path: "{{ sshd_config_path }}"
+    regexp: '^#?Port'
+    line: "Port {{ ssh_port | default(22) }}"
+    state: present
+    backup: yes
+  when: ssh_port is defined
+  tags:
+    - ssh
+    - ssh_config
+
+- name: Configurar Protocol SSH 2
+  lineinfile:
+    path: "{{ sshd_config_path }}"
+    regexp: '^#?Protocol'
+    line: 'Protocol 2'
+    state: present
+    backup: yes
+  tags:
+    - ssh
+    - ssh_config
+
+- name: Deshabilitar PasswordAuthentication
+  lineinfile:
+    path: "{{ sshd_config_path }}"
+    regexp: '^#?PasswordAuthentication'
+    line: "{{ 'PasswordAuthentication no' if ssh_disable_password_auth | default(true) else 'PasswordAuthentication yes' }}"
+    state: present
+    backup: yes
+  tags:
+    - ssh
+    - ssh_config
+
+- name: Reiniciar servicio SSH
+  service:
+    name: "{{ ssh_service_name | default('sshd') }}"
+    state: restarted
+  tags:
+    - ssh
+    - ssh_restart
+
+

@@ -1,0 +1,18 @@
+# Archivo de configuración de red para {{ inventory_hostname }}
+# Generado por Ansible
+
+source /etc/network/interfaces.d/*
+
+# La interfaz loopback
+auto lo
+iface lo inet loopback
+
+# Configuración de interfaz de red
+auto {{ network_interface | default('enp0s1') }}
+iface {{ network_interface | default('enp0s1') }} inet static
+    address {{ static_ip }}
+    netmask {{ netmask | default('255.255.255.0') }}
+    gateway {{ gateway }}
+    dns-nameservers {{ dns_server | default('8.8.8.8') }} {{ dns_secondary | default('8.8.4.4') }}
+
+

@@ -1,0 +1,75 @@
+---
+# Role: ceph
+# Descripción: Instalación y configuración de Ceph Storage Cluster
+# Autor: Sistema Ansible
+# Versión: 1.0
+
+- name: Instalar dependencias necesarias
+  apt:
+    name:
+      - wget
+      - curl
+      - lsb-release
+      - gnupg
+      - lvm2
+    state: present
+    update_cache: yes
+
+- name: Agregar clave GPG de Ceph
+  shell: |
+    wget -q -O- 'https://download.ceph.com/keys/release.asc' | gpg --dearmor -o /etc/apt/trusted.gpg.d/cephadm.gpg
+  args:
+    creates: /etc/apt/trusted.gpg.d/cephadm.gpg
+
+- name: Agregar repositorio de Ceph
+  apt_repository:
+    repo: "deb {{ ceph_repo }} {{ ansible_distribution_release }} main"
+    state: present
+
+- name: Actualizar caché de paquetes
+  apt:
+    update_cache: yes
+
+- name: Instalar cephadm
+  apt:
+    name: cephadm
+    state: present
+
+- name: Bootstrap de Ceph en el nodo principal
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  command: cephadm bootstrap --mon-ip {{ ceph_mon_ip }} --no-cleanup-on-failure
+  args:
+    creates: /etc/ceph/ceph.conf
+  when: 
+    - inventory_hostname == groups['ceph_servers'][0]
+    - ceph_bootstrap | default(true) | bool
+  register: ceph_bootstrap_result
+
+- name: Mostrar output del bootstrap
+  debug:
+    var: ceph_bootstrap_result.stdout
+  when: ceph_bootstrap_result is defined
+
+- name: Agregar nodos al clúster
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  command: >
+    cephadm shell -- ceph orch host add {{ hostvars[item].inventory_hostname }} {{ hostvars[item].ansible_host }}
+  loop: "{{ groups['ceph_servers'] | difference([inventory_hostname]) }}"
+  when: 
+    - inventory_hostname == groups['ceph_servers'][0]
+    - ceph_add_hosts | default(true) | bool
+    - ceph_bootstrap | default(true) | bool
+
+- name: Configurar OSD en todos los nodos
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  command: >
+    cephadm shell -- ceph orch apply osd --all-available-devices
+  when: 
+    - inventory_hostname == groups['ceph_servers'][0]
+    - ceph_apply_osd | default(true) | bool
+    - ceph_bootstrap | default(true) | bool
+
+

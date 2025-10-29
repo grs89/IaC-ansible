@@ -1,0 +1,30 @@
+---
+# Playbook: networking.yml
+# Descripción: Configurar IP estáticas en servidores
+# Uso: ansible-playbook playbooks/networking.yml --ask-become-pass
+
+- name: Configurar networking en servidores
+  hosts: all
+  become: true
+  gather_facts: yes
+  
+  pre_tasks:
+    - name: Verificar que existen variables de red
+      assert:
+        that:
+          - static_ip is defined or hostvars[inventory_hostname].static_ip is defined
+        fail_msg: "Variable static_ip no definida para {{ inventory_hostname }}"
+        success_msg: "Variables de red correctas para {{ inventory_hostname }}"
+
+  roles:
+    - role: networking
+      vars:
+        static_ip: "{{ hostvars[inventory_hostname].static_ip | default(static_ip) }}"
+        gateway: "{{ hostvars[inventory_hostname].gateway | default(gateway) }}"
+        dns_server: "{{ hostvars[inventory_hostname].dns_server | default(dns_server) }}"
+        network_interface: "{{ network_interface | default('enp0s1') }}"
+  tags:
+    - networking
+    - network
+
+

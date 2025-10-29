@@ -1,0 +1,37 @@
+---
+# Role: common
+# Descripción: Configuración básica común para todos los servidores
+# Autor: Sistema Ansible
+# Versión: 1.0
+
+- name: Actualizar cache de paquetes
+  apt:
+    update_cache: yes
+  when: ansible_pkg_mgr == "apt"
+
+- name: Instalar paquetes esenciales
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - htop
+      - bmon
+      - sudo
+      - vim
+      - net-tools
+      - unzip
+    state: present
+  when: ansible_pkg_mgr == "apt"
+
+- name: Configurar zona horaria UTC
+  timezone:
+    name: UTC
+    state: present
+
+- name: Configurar hostname
+  hostname:
+    name: "{{ hostname | default(ansible_hostname) }}"
+    use: systemd
+
+
