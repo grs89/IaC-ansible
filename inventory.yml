@@ -1,6 +1,12 @@
 ---
 all:
   hosts:
+
+    Servidor_Docker-2:
+      ansible_host: 10.0.2.145
+      ansible_user: icbsuser
+      ansible_become: true
+      ansible_become_method: sudo
     # Servidor Docker actual
     Servidor_Docker:
       ansible_host: 192.168.20.218

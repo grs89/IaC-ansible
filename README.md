@@ -2,6 +2,52 @@
 
 Este proyecto utiliza Ansible para la automatización de tareas de TI y gestión de infraestructura como código.
 
+---
+
+## 🎯 Resumen Ejecutivo
+
+### Capacidades del Proyecto
+
+#### Gestión de Servidores
+| Grupo | Descripción |
+|-------|-------------|
+| `ubuntu_servers` | Servidores Ubuntu Server |
+| `k8s_servers` | Cluster Kubernetes (control plane + workers) |
+| `ceph_servers` | Cluster de almacenamiento Ceph |
+| `debian_servers` | Servidores Debian |
+| `container_hosts` | Hosts con Docker/Kubernetes |
+
+#### Playbooks Disponibles
+- **`site.yml`** - Configuración base de servidores
+- **`networking.yml`** - Configuración de red
+- **`install_docker.yml`** - Instalación de Docker
+- **`install_kubernetes.yml`** - Instalación de Kubernetes
+- **`install_ceph.yml`** - Instalación de almacenamiento Ceph
+- **`install_kvm.yml`** - Instalación de virtualización KVM
+- **`deploy_cluster.yml`** - Despliegue de cluster completo (K8s + Base)
+- **`deploy_storage_cluster.yml`** - Despliegue de cluster de almacenamiento
+
+#### Roles Reutilizables (20 roles)
+- **`common/`** - Configuración base
+- **`ssh/`** - Configuración SSH
+- **`networking/`** - Configuración de red
+- **`docker/`** - Instalación Docker
+- **`kubernetes/`** - Instalación Kubernetes  
+- **`ceph/`** - Instalación Ceph
+- **`hardening/`** - Hardening de seguridad
+- **`kvm/`** - Instalación KVM
+
+#### Casos de Uso Típicos
+1. Provisionar un nuevo servidor con configuración base
+2. Crear un cluster Kubernetes completo
+3. Configurar almacenamiento distribuido con Ceph
+4. Instalar Docker en múltiples servidores
+5. Configurar redes estáticas en servidores
+6. Aplicar hardening de seguridad a la infraestructura
+7. Desplegar virtualización KVM
+
+---
+
 ## Requisitos
 
 - Ansible 2.9 o superior
