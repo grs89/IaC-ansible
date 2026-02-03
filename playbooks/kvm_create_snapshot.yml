@@ -1,0 +1,24 @@
+---
+- name: Crear snapshots de VMs KVM
+  hosts: ubuntu_servers  # Ajustar según tu inventario de hosts KVM
+  become: yes
+
+  vars:
+    fecha: "{{ ansible_date_time.date }}"
+    snapshots:
+      - { vm: "Servidor_Web", name: "snap_web_{{ fecha }}" }
+
+  tasks:
+    - name: Crear snapshot para cada VM
+      ansible.builtin.shell: >
+        virsh snapshot-create-as --domain {{ item.vm }}
+        --name "{{ item.name }}"
+        --description "Snapshot automático del {{ fecha }}"
+        --atomic
+      loop: "{{ snapshots }}"
+      register: snapshot_result
+      ignore_errors: yes
+
+    - name: Mostrar resultado de los snapshots
+      debug:
+        var: snapshot_result

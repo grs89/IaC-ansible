@@ -108,6 +108,80 @@ ansible-playbook playbooks/deploy_storage_cluster.yml --ask-become-pass
 
 ---
 
+## 🔄 Playbooks de Actualización y Mantenimiento
+
+### `upgrade_debian.yml`
+Actualiza servidores de Debian 11 (bullseye) a Debian 12 (bookworm).
+
+```bash
+ansible-playbook playbooks/upgrade_debian.yml --ask-become-pass
+```
+
+**Qué hace:**
+- Cambia repositorios de bullseye a bookworm
+- Actualiza todos los paquetes (dist-upgrade)
+- Reinicia el servidor si es necesario
+- Verifica que Apache esté funcionando
+
+**Hosts objetivo:** `debian_servers`
+
+---
+
+### `upgrade_debian_apache.yml`
+Similar a `upgrade_debian.yml` pero con verificación inteligente de reinicio.
+
+```bash
+ansible-playbook playbooks/upgrade_debian_apache.yml --ask-become-pass
+```
+
+**Qué hace:**
+- Actualiza paquetes base primero
+- Solo reinicia si `/var/run/reboot-required` existe
+- Completa dist-upgrade después del reinicio
+- Verifica Apache al final
+
+**Hosts objetivo:** `debian_servers`
+
+---
+
+## 📸 Playbooks de Snapshots KVM
+
+### `kvm_create_snapshot.yml`
+Crea snapshots automáticos de máquinas virtuales KVM.
+
+```bash
+ansible-playbook playbooks/kvm_create_snapshot.yml --ask-become-pass
+```
+
+**Qué hace:**
+- Crea snapshots atómicos de VMs definidas
+- Nombra snapshots con fecha automática
+- Útil antes de actualizaciones o cambios críticos
+
+**Variables a configurar:**
+```yaml
+snapshots:
+  - { vm: "Servidor_Web", name: "snap_web_{{ fecha }}" }
+  - { vm: "Servidor_BD", name: "snap_bd_{{ fecha }}" }
+```
+
+**Hosts objetivo:** `ubuntu_servers` (ajustar según tu inventario)
+
+---
+
+### `kvm_revert_snapshot.yml`
+Revierte una VM a un snapshot anterior.
+
+```bash
+ansible-playbook playbooks/kvm_revert_snapshot.yml --ask-become-pass
+```
+
+**⚠️ Precaución:** Este playbook revierte la VM `Servidor_Web` al snapshot `snap_web`. Edita el archivo para especificar la VM y snapshot correctos.
+
+**Hosts objetivo:** `ubuntu_servers` (ajustar según tu inventario)
+
+---
+
 ## 🎯 Uso con Tags
 
 Ejecutar solo ciertas secciones:

@@ -1,0 +1,41 @@
+---
+- name: Actualizar Debian 11 (bullseye) a Debian 12 (bookworm) y verificar Apache
+  hosts: debian_servers
+  become: yes
+
+  tasks:
+    - name: Cambiar repositorios de bullseye a bookworm
+      replace:
+        path: /etc/apt/sources.list
+        regexp: 'bullseye'
+        replace: 'bookworm'
+
+    - name: Actualizar caché de paquetes
+      apt:
+        update_cache: yes
+
+    - name: Actualizar paquetes a la nueva versión
+      apt:
+        upgrade: dist
+        autoremove: yes
+        autoclean: yes
+
+    - name: Reiniciar si es necesario
+      reboot:
+        reboot_timeout: 600
+
+    - name: Esperar que el host vuelva online
+      wait_for_connection:
+        delay: 10
+        timeout: 300
+
+    - name: Verificar que apache2 está instalado
+      apt:
+        name: apache2
+        state: present
+
+    - name: Asegurarse que apache2 está corriendo y habilitado
+      service:
+        name: apache2
+        state: started
+        enabled: yes

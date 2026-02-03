@@ -1,0 +1,7 @@
+- name: Revertir snapshot de VM
+  hosts: ubuntu_servers  # Ajustar según tu inventario de hosts KVM
+  become: yes
+  tasks:
+    - name: Revertir snapshot
+      ansible.builtin.shell: >
+        virsh snapshot-revert Servidor_Web snap_web
