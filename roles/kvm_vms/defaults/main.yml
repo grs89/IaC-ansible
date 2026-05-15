@@ -3,7 +3,8 @@
 vms_iso_pool: "/var/lib/libvirt/images/isos"
 vms_disk_pool: "/var/lib/libvirt/images/vms"
 
-vms_base_image_url: "https://github.com/siderolabs/talos/releases/download/v1.7.5/nocloud-amd64.raw.xz"
+# Corregido a .xz para la versión v1.7.5 estable
+vms_base_image_url: "https://github.com/siderolabs/talos/releases/download/v1.7.5/metal-amd64.raw.xz"
 
 vms_list:
   - name: "talos-node-01"

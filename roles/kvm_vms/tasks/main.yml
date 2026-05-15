@@ -1,6 +1,6 @@
 ---
-# Role: kvm_vms (Versión Organizada)
-# Descripción: Despliegue de máquinas virtuales con Talos OS y carpetas separadas
+# Role: kvm_vms (Versión Zstd)
+# Descripción: Despliegue de máquinas virtuales con Talos OS (soporte .zst)
 
 - name: Asegurar que los directorios de almacenamiento existen
   file:
@@ -11,22 +11,31 @@
     - "{{ vms_iso_pool }}"
     - "{{ vms_disk_pool }}"
 
-- name: Instalar herramientas necesarias
+- name: Instalar herramientas necesarias (incluyendo zstd)
   apt:
     name:
       - xz-utils
       - qemu-utils
+      - zstd
     state: present
 
-- name: Descargar imagen de Talos OS (.raw.xz)
+- name: Descargar imagen de Talos OS
   get_url:
     url: "{{ vms_base_image_url }}"
-    dest: "{{ vms_iso_pool }}/talos-base.raw.xz"
+    dest: "{{ vms_iso_pool }}/talos-base.raw{{ '.zst' if vms_base_image_url.endswith('.zst') else '.xz' }}"
     mode: '0644'
 
-- name: Descomprimir imagen de Talos
+- name: Descomprimir imagen de Talos (.zst)
+  shell: |
+    zstd -d -f {{ vms_iso_pool }}/talos-base.raw.zst -o {{ vms_iso_pool }}/talos-base.raw
+  when: vms_base_image_url.endswith('.zst')
+  args:
+    creates: "{{ vms_iso_pool }}/talos-base.raw"
+
+- name: Descomprimir imagen de Talos (.xz)
   shell: |
     xz -d -c {{ vms_iso_pool }}/talos-base.raw.xz > {{ vms_iso_pool }}/talos-base.raw
+  when: vms_base_image_url.endswith('.xz')
   args:
     creates: "{{ vms_iso_pool }}/talos-base.raw"
 

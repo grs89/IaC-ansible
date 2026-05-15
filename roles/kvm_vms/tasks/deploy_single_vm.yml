@@ -21,8 +21,11 @@
       --disk {{ vms_disk_pool }}/{{ vm_item.name }}.qcow2,device=disk,bus=virtio \
       --os-variant fedora31 \
       --virt-type kvm \
-      --graphics none \
+      --graphics spice \
+      --video qxl \
+      --channel spicevmc \
       --network bridge=br0,model=virtio \
       --import \
       --noautoconsole
+
   when: vm_exists.rc != 0
