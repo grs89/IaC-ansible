@@ -19,6 +19,8 @@ iface br{{ bridge_count[0] }} inet dhcp
     bridge_ports {{ interface }}
     bridge_stp off
     bridge_fd 0
+    dns-nameservers 8.8.8.8 8.8.4.4
+
 
 {% if bridge_count.append(bridge_count.pop() + 1) %}{% endif %}
 {% endif %}
