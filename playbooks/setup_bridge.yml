@@ -1,0 +1,10 @@
+---
+# Playbook: setup_bridge.yml
+# Descripción: Configurar puente de red br0 para KVM
+
+- name: Configurar Bridge de Red
+  hosts: all
+  become: true
+
+  roles:
+    - network_bridge

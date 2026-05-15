@@ -1,0 +1,28 @@
+---
+# Role: network_bridge
+# Descripción: Configurar un puente de red (br0) usando Netplan
+
+- name: Asegurar que el directorio de Netplan existe
+  file:
+    path: /etc/netplan
+    state: directory
+    mode: '0755'
+
+- name: Hacer backup de la configuración actual de Netplan
+  shell: cp /etc/netplan/*.yaml /etc/netplan/backup_before_bridge.yaml.bak
+  args:
+    creates: /etc/netplan/backup_before_bridge.yaml.bak
+  ignore_errors: yes
+
+- name: Generar nueva configuración de Netplan con Bridge
+  template:
+    src: 01-netcfg.yaml.j2
+    dest: /etc/netplan/01-netcfg.yaml
+    mode: '0600'
+  register: netplan_config
+
+- name: Aplicar configuración de Netplan
+  command: netplan apply
+  async: 45 # Ejecutar de forma asíncrona por si se corta la conexión un segundo
+  poll: 0
+  when: netplan_config.changed

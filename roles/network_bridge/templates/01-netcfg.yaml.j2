@@ -1,0 +1,24 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+{% for interface in ansible_interfaces %}
+{% if interface != 'lo' and not interface.startswith('veth') and not interface.startswith('docker') and not interface.startswith('br') and not interface.startswith('bond') %}
+    {{ interface }}:
+      dhcp4: no
+      dhcp6: no
+{% endif %}
+{% endfor %}
+  bridges:
+{% set bridge_count = [0] %}
+{% for interface in ansible_interfaces %}
+{% if interface != 'lo' and not interface.startswith('veth') and not interface.startswith('docker') and not interface.startswith('br') and not interface.startswith('bond') %}
+    br{{ bridge_count[0] }}:
+      interfaces: [{{ interface }}]
+      dhcp4: yes
+      parameters:
+        stp: false
+        forward-delay: 0
+{% if bridge_count.append(bridge_count.pop() + 1) %}{% endif %}
+{% endif %}
+{% endfor %}
