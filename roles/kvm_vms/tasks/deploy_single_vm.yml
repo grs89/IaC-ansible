@@ -1,0 +1,28 @@
+---
+# Tareas para una sola VM de Talos
+
+- name: "Verificar si la VM {{ vm_item.name }} ya existe"
+  shell: "virsh list --all | grep -w {{ vm_item.name }}"
+  register: vm_exists
+  failed_when: false
+  changed_when: false
+
+- name: "Crear disco QCOW2 desde la imagen RAW de Talos para {{ vm_item.name }}"
+  shell: |
+    qemu-img create -f qcow2 -b {{ vms_storage_pool }}/talos-base.raw -F raw {{ vms_storage_pool }}/{{ vm_item.name }}.qcow2 {{ vm_item.disk_size }}
+  when: vm_exists.rc != 0
+
+- name: "Instalar y arrancar nodo Talos {{ vm_item.name }}"
+  shell: |
+    virt-install \
+      --name {{ vm_item.name }} \
+      --memory {{ vm_item.memory }} \
+      --vcpus {{ vm_item.vcpus }} \
+      --disk {{ vms_storage_pool }}/{{ vm_item.name }}.qcow2,device=disk,bus=virtio \
+      --os-variant fedora31 \
+      --virt-type kvm \
+      --graphics none \
+      --network bridge=br0,model=virtio \
+      --import \
+      --noautoconsole
+  when: vm_exists.rc != 0

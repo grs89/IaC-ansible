@@ -1,0 +1,28 @@
+---
+# Role: kvm_vms (Versión Talos)
+# Descripción: Despliegue de máquinas virtuales con Talos OS
+
+- name: Instalar herramientas necesarias
+  apt:
+    name:
+      - xz-utils
+      - qemu-utils
+    state: present
+
+- name: Descargar imagen de Talos OS (.raw.xz)
+  get_url:
+    url: "{{ vms_base_image_url }}"
+    dest: "{{ vms_storage_pool }}/talos-base.raw.xz"
+    mode: '0644'
+
+- name: Descomprimir imagen de Talos
+  shell: |
+    xz -d -c {{ vms_storage_pool }}/talos-base.raw.xz > {{ vms_storage_pool }}/talos-base.raw
+  args:
+    creates: "{{ vms_storage_pool }}/talos-base.raw"
+
+- name: Desplegar cada nodo de Talos
+  include_tasks: deploy_single_vm.yml
+  loop: "{{ vms_list }}"
+  loop_control:
+    loop_var: vm_item

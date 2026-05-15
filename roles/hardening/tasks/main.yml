@@ -11,19 +11,30 @@
   when: ufw_enabled | default(true)
 
 
+- name: Verificar si UFW está instalado (existe su configuración)
+  stat:
+    path: /etc/default/ufw
+  register: ufw_config_file
+
 - name: Desactivar IPv6 en UFW (evita errores de sysctl)
   lineinfile:
     path: /etc/default/ufw
     regexp: '^IPV6='
     line: 'IPV6=no'
-  when: ufw_disable_ipv6 | default(true)
+  when: 
+    - ufw_enabled | default(true)
+    - ufw_config_file.stat.exists
+    - ufw_disable_ipv6 | default(true)
 
 - name: "Evitar que UFW gestione sysctl (soluciona ERROR: problem running sysctl)"
   lineinfile:
     path: /etc/default/ufw
     regexp: '^MANAGE_SYSCTL='
     line: 'MANAGE_SYSCTL=no'
-  when: ufw_disable_sysctl_mgmt | default(true)
+  when: 
+    - ufw_enabled | default(true)
+    - ufw_config_file.stat.exists
+    - ufw_disable_sysctl_mgmt | default(true)
 
 
 

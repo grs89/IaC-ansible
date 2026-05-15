@@ -1,0 +1,25 @@
+# Archivo generado por Ansible para configurar Bridges en Debian
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+{% set bridge_count = [0] %}
+{% for interface in ansible_interfaces %}
+{% if interface != 'lo' and not interface.startswith('veth') and not interface.startswith('docker') and not interface.startswith('br') and not interface.startswith('bond') %}
+
+# Configuración física para {{ interface }}
+auto {{ interface }}
+iface {{ interface }} inet manual
+
+# Puente para {{ interface }}
+auto br{{ bridge_count[0] }}
+iface br{{ bridge_count[0] }} inet dhcp
+    bridge_ports {{ interface }}
+    bridge_stp off
+    bridge_fd 0
+
+{% if bridge_count.append(bridge_count.pop() + 1) %}{% endif %}
+{% endif %}
+{% endfor %}

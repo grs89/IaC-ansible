@@ -1,0 +1,26 @@
+#cloud-config
+users:
+  - name: {{ vms_user }}
+    ssh-authorized-keys:
+      - {{ vms_ssh_key }}
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: sudo
+    shell: /bin/bash
+    passwd: {{ vms_password | password_hash('sha512') }}
+
+chpasswd:
+  list: |
+     {{ vms_user }}:{{ vms_password }}
+  expire: False
+
+ssh_pwauth: True
+hostname: {{ vm_item.name }}
+
+growpart:
+  mode: auto
+  devices: ['/']
+
+runcmd:
+  - [ apt-get, update ]
+  - [ apt-get, install, -y, qemu-guest-agent ]
+  - [ systemctl, enable, --now, qemu-guest-agent ]

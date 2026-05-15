@@ -1,0 +1,10 @@
+---
+# Playbook: deploy_vms.yml
+# Descripción: Desplegar máquinas virtuales Talos en el servidor KVM
+
+- name: Desplegar Nodos Talos
+  hosts: all
+  become: true
+
+  roles:
+    - kvm_vms

@@ -1,28 +1,33 @@
 ---
-# Role: network_bridge
-# Descripción: Configurar un puente de red (br0) usando Netplan
+# Role: network_bridge (Versión Debian)
+# Descripción: Configurar un puente de red (br0) usando /etc/network/interfaces
 
-- name: Asegurar que el directorio de Netplan existe
-  file:
-    path: /etc/netplan
-    state: directory
-    mode: '0755'
+- name: Instalar herramientas de bridge en Debian
+  apt:
+    name: bridge-utils
+    state: present
 
-- name: Hacer backup de la configuración actual de Netplan
-  shell: cp /etc/netplan/*.yaml /etc/netplan/backup_before_bridge.yaml.bak
-  args:
-    creates: /etc/netplan/backup_before_bridge.yaml.bak
+- name: Hacer backup de la configuración de red actual
+
+  copy:
+    src: /etc/network/interfaces
+    dest: /etc/network/interfaces.bak
+    remote_src: yes
   ignore_errors: yes
 
-- name: Generar nueva configuración de Netplan con Bridge
+- name: Generar configuración de interfaces con Bridge
   template:
-    src: 01-netcfg.yaml.j2
-    dest: /etc/netplan/01-netcfg.yaml
-    mode: '0600'
-  register: netplan_config
+    src: interfaces.j2
+    dest: /etc/network/interfaces
+    mode: '0644'
+  register: network_config
 
-- name: Aplicar configuración de Netplan
-  command: netplan apply
-  async: 45 # Ejecutar de forma asíncrona por si se corta la conexión un segundo
+- name: Reiniciar red para activar el Bridge (Transición rápida)
+  shell: |
+    /usr/sbin/ifdown --force {{ ansible_default_ipv4.interface }} || true
+    /usr/sbin/ifup br0
+  async: 60
   poll: 0
-  when: netplan_config.changed
+  when: network_config.changed
+
+
