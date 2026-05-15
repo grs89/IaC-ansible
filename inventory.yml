@@ -2,6 +2,17 @@
 all:
   hosts:
 
+    NMS-MINI:
+      ansible_host: 192.168.81.97  # La IP de tu servidor
+      ansible_user: grs    # Usuario con el que te conectas
+      ansible_become: true        # Para ejecutar comandos como root (sudo)
+      ansible_become_method: su
+      ufw_enabled: false
+      configure_sysctl: false
+
+
+
+
     Servidor_Docker-2:
       ansible_host: 10.0.2.145
       ansible_user: icbsuser

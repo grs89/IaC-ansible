@@ -24,10 +24,10 @@
     state: present
   when: ansible_pkg_mgr == "apt"
 
-- name: Configurar zona horaria UTC
+- name: Configurar zona horaria ({{ timezone }})
   timezone:
-    name: UTC
-    state: present
+    name: "{{ timezone }}"
+
 
 - name: Configurar hostname
   hostname:

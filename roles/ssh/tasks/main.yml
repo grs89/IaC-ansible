@@ -11,11 +11,10 @@
     line: 'PubkeyAuthentication yes'
     state: present
     backup: yes
-  vars:
-    sshd_config_path: "{{ sshd_config_file | default('/etc/ssh/sshd_config') }}"
   tags:
     - ssh
     - ssh_config
+
 
 - name: Asegurar AuthorizedKeysFile está configurado
   lineinfile:
@@ -32,10 +31,11 @@
   lineinfile:
     path: "{{ sshd_config_path }}"
     regexp: '^#?PermitRootLogin'
-    line: "{{ ssh_permit_root_login | default('no') }}"
+    line: "PermitRootLogin {{ ssh_permit_root_login | default('no') }}"
     state: present
     backup: yes
     validate: '/usr/sbin/sshd -t -f %s'
+
   tags:
     - ssh
     - ssh_config

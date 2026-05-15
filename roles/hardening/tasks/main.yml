@@ -8,26 +8,49 @@
   apt:
     name: ufw
     state: present
+  when: ufw_enabled | default(true)
+
+
+- name: Desactivar IPv6 en UFW (evita errores de sysctl)
+  lineinfile:
+    path: /etc/default/ufw
+    regexp: '^IPV6='
+    line: 'IPV6=no'
+  when: ufw_disable_ipv6 | default(true)
+
+- name: "Evitar que UFW gestione sysctl (soluciona ERROR: problem running sysctl)"
+  lineinfile:
+    path: /etc/default/ufw
+    regexp: '^MANAGE_SYSCTL='
+    line: 'MANAGE_SYSCTL=no'
+  when: ufw_disable_sysctl_mgmt | default(true)
+
+
+
 
 - name: Permitir conexiones SSH
   ufw:
     rule: allow
     to_port: "{{ ssh_port | default(22) }}"
     proto: tcp
+  when: ufw_enabled | default(true)
+
 
 - name: Permitir conexiones HTTP
   ufw:
     rule: allow
     to_port: "{{ http_port | default(80) }}"
     proto: tcp
-  when: http_enabled | default(false)
+  when: (ufw_enabled | default(true)) and (http_enabled | default(false))
+
 
 - name: Permitir conexiones HTTPS
   ufw:
     rule: allow
     to_port: "{{ https_port | default(443) }}"
     proto: tcp
-  when: https_enabled | default(false)
+  when: (ufw_enabled | default(true)) and (https_enabled | default(false))
+
 
 - name: Habilitar UFW
   ufw:
