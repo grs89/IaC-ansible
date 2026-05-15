@@ -1,7 +1,9 @@
 ---
-# Parámetros para las VMs de Talos (Recursos aumentados)
+# Parámetros para las VMs de Talos (Organizado por carpetas)
+vms_iso_pool: "/var/lib/libvirt/images/isos"
+vms_disk_pool: "/var/lib/libvirt/images/vms"
+
 vms_base_image_url: "https://github.com/siderolabs/talos/releases/download/v1.7.5/nocloud-amd64.raw.xz"
-vms_storage_pool: "/var/lib/libvirt/images"
 
 vms_list:
   - name: "talos-node-01"
@@ -13,6 +15,10 @@ vms_list:
     vcpus: 4
     disk_size: 20G
   - name: "talos-node-03"
+    memory: 4096
+    vcpus: 4
+    disk_size: 20G
+  - name: "talos-node-04"
     memory: 4096
     vcpus: 4
     disk_size: 20G

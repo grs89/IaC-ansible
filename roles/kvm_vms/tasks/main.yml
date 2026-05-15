@@ -1,6 +1,15 @@
 ---
-# Role: kvm_vms (Versión Talos)
-# Descripción: Despliegue de máquinas virtuales con Talos OS
+# Role: kvm_vms (Versión Organizada)
+# Descripción: Despliegue de máquinas virtuales con Talos OS y carpetas separadas
+
+- name: Asegurar que los directorios de almacenamiento existen
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ vms_iso_pool }}"
+    - "{{ vms_disk_pool }}"
 
 - name: Instalar herramientas necesarias
   apt:
@@ -12,14 +21,14 @@
 - name: Descargar imagen de Talos OS (.raw.xz)
   get_url:
     url: "{{ vms_base_image_url }}"
-    dest: "{{ vms_storage_pool }}/talos-base.raw.xz"
+    dest: "{{ vms_iso_pool }}/talos-base.raw.xz"
     mode: '0644'
 
 - name: Descomprimir imagen de Talos
   shell: |
-    xz -d -c {{ vms_storage_pool }}/talos-base.raw.xz > {{ vms_storage_pool }}/talos-base.raw
+    xz -d -c {{ vms_iso_pool }}/talos-base.raw.xz > {{ vms_iso_pool }}/talos-base.raw
   args:
-    creates: "{{ vms_storage_pool }}/talos-base.raw"
+    creates: "{{ vms_iso_pool }}/talos-base.raw"
 
 - name: Desplegar cada nodo de Talos
   include_tasks: deploy_single_vm.yml
