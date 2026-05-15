@@ -165,6 +165,12 @@
     backup: yes
   when: configure_password_policy | default(true)
 
+- name: Instalar iptables-persistent para persistencia de reglas
+  apt:
+    name: iptables-persistent
+    state: present
+  when: not (ufw_enabled | default(true))
+
 - name: Abrir puerto RDP en iptables (fallback si UFW está desactivado)
   iptables:
     chain: INPUT
@@ -173,6 +179,8 @@
     jump: ACCEPT
     action: insert
   when: not (ufw_enabled | default(true))
+  notify: Save iptables rules
+
 
 
 

@@ -11,11 +11,14 @@
     - ssh
     - hardening
     - amd_gpu
+    - nosleep
   tags:
     - common
     - ssh
     - hardening
     - amd_gpu
+    - nosleep
+
 
 
 

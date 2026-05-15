@@ -1,0 +1,10 @@
+---
+- name: Save iptables rules
+  shell: |
+    if [ -x /usr/sbin/netfilter-persistent ]; then
+      /usr/sbin/netfilter-persistent save
+    else
+      /usr/sbin/iptables-save > /etc/iptables/rules.v4
+      /usr/sbin/ip6tables-save > /etc/iptables/rules.v6
+    fi
+  when: not (ufw_enabled | default(true))

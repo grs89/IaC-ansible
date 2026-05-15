@@ -1,0 +1,22 @@
+---
+# Role: nosleep
+# Descripción: Deshabilitar suspensión, hibernación y sueño en servidores Ubuntu/Debian
+
+- name: Deshabilitar objetivos de suspensión y sueño (mask)
+  systemd:
+    name: "{{ item }}"
+    masked: yes
+    state: stopped
+  loop:
+    - sleep.target
+    - suspend.target
+    - hibernate.target
+    - hybrid-sleep.target
+  ignore_errors: yes # Por si alguno no existe en la versión específica
+
+- name: Configurar Login Manager para ignorar el cierre de tapa (si es un laptop/mini)
+  lineinfile:
+    path: /etc/systemd/logind.conf
+    regexp: '^#?HandleLidSwitch='
+    line: 'HandleLidSwitch=ignore'
+  notify: Restart systemd-logind
