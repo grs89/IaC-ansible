@@ -1,0 +1,68 @@
+---
+# Role: vnc
+# Descripción: Instalación y configuración de servidor VNC con XFCE4
+
+- name: Actualizar caché de paquetes
+  apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Instalar entorno de escritorio
+  apt:
+    name: "{{ desktop_packages[vnc_desktop] }}"
+    state: present
+  when: install_desktop_env
+
+
+- name: Instalar servidor VNC (TigerVNC)
+  apt:
+    name:
+      - tigervnc-standalone-server
+      - tigervnc-common
+    state: present
+
+- name: Asegurar que el directorio .vnc existe para el usuario
+  file:
+    path: "~{{ vnc_user }}/.vnc"
+    state: directory
+    owner: "{{ vnc_user }}"
+    group: "{{ vnc_user }}"
+    mode: '0700'
+
+- name: Configurar contraseña de VNC
+  shell: |
+    echo "{{ vnc_password }}" | vncpasswd -f > ~{{ vnc_user }}/.vnc/passwd
+    chown {{ vnc_user }}:{{ vnc_user }} ~{{ vnc_user }}/.vnc/passwd
+    chmod 0600 ~{{ vnc_user }}/.vnc/passwd
+  args:
+    creates: "~{{ vnc_user }}/.vnc/passwd"
+
+- name: Crear archivo xstartup
+  copy:
+    dest: "~{{ vnc_user }}/.vnc/xstartup"
+    content: |
+      #!/bin/sh
+      unset SESSION_MANAGER
+      unset DBUS_SESSION_BUS_ADDRESS
+      {% if vnc_desktop == 'xfce' %}
+      exec startxfce4
+      {% elif vnc_desktop == 'kde' %}
+      exec startplasma-x11
+      {% endif %}
+    owner: "{{ vnc_user }}"
+    group: "{{ vnc_user }}"
+    mode: '0755'
+
+
+- name: Crear unidad de servicio systemd para VNC
+  template:
+    src: vncserver.service.j2
+    dest: "/etc/systemd/system/vncserver@:{{ vnc_display }}.service"
+  notify: Reload systemd
+
+- name: Habilitar e iniciar servicio VNC
+  systemd:
+    name: "vncserver@:{{ vnc_display }}.service"
+    state: started
+    enabled: true
+    daemon_reload: yes

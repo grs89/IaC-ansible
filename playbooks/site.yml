@@ -10,9 +10,12 @@
     - common
     - ssh
     - hardening
+    - amd_gpu
   tags:
     - common
     - ssh
     - hardening
+    - amd_gpu
+
 
 

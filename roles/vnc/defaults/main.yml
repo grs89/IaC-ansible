@@ -1,0 +1,20 @@
+---
+# Valores por defecto para el role vnc
+vnc_user: "{{ ansible_user }}"
+vnc_display: 1
+vnc_port: 5901
+vnc_resolution: 1280x800
+vnc_depth: 24
+vnc_password: "password123" # Debería cambiarse con vault o variables de host
+
+# Entorno de escritorio (xfce4 o kde)
+vnc_desktop: kde
+install_desktop_env: false 
+
+desktop_packages:
+  xfce:
+    - xfce4
+    - xfce4-goodies
+  kde:
+    - kde-standard
+

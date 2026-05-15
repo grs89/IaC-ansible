@@ -1,0 +1,22 @@
+---
+# Role: amd_gpu
+# Descripción: Optimización para gráficas AMD (Mesa, Vulkan, VA-API)
+
+- name: Verificar si hay una GPU AMD presente
+  shell: lspci | grep -i "Advanced Micro Devices"
+  register: amd_gpu_check
+  failed_when: false
+  changed_when: false
+
+- name: Instalar librerías de aceleración gráfica para AMD
+  apt:
+    name:
+      - mesa-vulkan-drivers
+      - mesa-va-drivers
+      - mesa-utils
+      - vainfo
+    state: present
+    update_cache: yes
+
+
+  when: amd_gpu_check.rc == 0

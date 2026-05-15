@@ -1,0 +1,40 @@
+---
+# Role: xrdp
+# Descripción: Instalación y configuración de XRDP para acceso con credenciales locales
+
+- name: Actualizar caché de paquetes
+  apt:
+    update_cache: yes
+
+- name: Instalar XRDP y servidor X org
+  apt:
+    name:
+      - xrdp
+      - xorgxrdp
+    state: present
+
+- name: Añadir usuario xrdp al grupo ssl-cert
+  user:
+    name: xrdp
+    groups: ssl-cert
+    append: yes
+
+- name: Configurar sesión KDE para XRDP
+  copy:
+    dest: "/home/{{ item }}/.xsession"
+    content: |
+      export DESKTOP_SESSION=plasma
+      export XDG_CURRENT_DESKTOP=KDE
+      export XDG_SESSION_DESKTOP=KDE
+      exec dbus-run-session startplasma-x11
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0644'
+
+  loop: "{{ users_to_configure | default([ansible_user]) }}"
+
+- name: Reiniciar y habilitar servicio XRDP
+  systemd:
+    name: xrdp
+    state: restarted
+    enabled: true

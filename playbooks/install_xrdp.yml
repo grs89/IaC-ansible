@@ -1,0 +1,16 @@
+---
+# Playbook: install_xrdp.yml
+# Descripción: Instalar XRDP para acceso remoto con credenciales locales (KDE)
+
+- name: Instalar y configurar XRDP
+  hosts: all
+  become: true
+
+
+  roles:
+    - xrdp
+
+  post_tasks:
+    - name: Recordatorio de puerto RDP
+      debug:
+        msg: "XRDP instalado. Conéctate usando un cliente de Escritorio Remoto al puerto 3389. Usa tu usuario y contraseña local."

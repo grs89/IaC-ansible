@@ -165,4 +165,14 @@
     backup: yes
   when: configure_password_policy | default(true)
 
+- name: Abrir puerto RDP en iptables (fallback si UFW está desactivado)
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 3389
+    jump: ACCEPT
+    action: insert
+  when: not (ufw_enabled | default(true))
+
+
 

@@ -1,0 +1,15 @@
+---
+# Playbook: install_vnc.yml
+# Descripción: Instalar servidor VNC con XFCE4 en servidores Debian/Ubuntu
+
+- name: Instalar y configurar Servidor VNC
+  hosts: debian_servers
+  become: true
+
+  roles:
+    - vnc
+
+  post_tasks:
+    - name: Recordatorio de puerto VNC
+      debug:
+        msg: "El servidor VNC está corriendo en el puerto 5901 (Display :1). Recuerda abrir el puerto en tu firewall si es necesario."
