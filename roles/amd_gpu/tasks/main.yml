@@ -8,15 +8,18 @@
   failed_when: false
   changed_when: false
 
-- name: Instalar librerías de aceleración gráfica para AMD
+- name: Instalar librerías de aceleración y herramientas de monitoreo para AMD
   apt:
     name:
       - mesa-vulkan-drivers
       - mesa-va-drivers
       - mesa-utils
       - vainfo
+      - radeontop
+      - nvtop
     state: present
     update_cache: yes
+
 
 
   when: amd_gpu_check.rc == 0
