@@ -7,19 +7,22 @@ vms_disk_pool: "/var/lib/libvirt/images/vms"
 vms_base_image_url: "https://github.com/siderolabs/talos/releases/download/v1.7.5/metal-amd64.raw.xz"
 
 vms_list:
-  - name: "talos-node-01"
+  - name: "talos-node-cp"
     memory: 4096
     vcpus: 4
-    disk_size: 20G
-  - name: "talos-node-02"
+    disk_size: 40G
+  - name: "talos-node-w1"
     memory: 4096
     vcpus: 4
-    disk_size: 20G
-  - name: "talos-node-03"
+    disk_size: 30G
+    disk_size_2: 10G
+  - name: "talos-node-w2"
     memory: 4096
     vcpus: 4
-    disk_size: 20G
-  - name: "talos-node-04"
+    disk_size: 30G
+    disk_size_2: 10G
+  - name: "talos-node-w3"
     memory: 4096
     vcpus: 4
-    disk_size: 20G
+    disk_size: 30G
+    disk_size_2: 10G

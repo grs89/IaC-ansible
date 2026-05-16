@@ -2,7 +2,7 @@
 all:
   hosts:
 
-    NMS-MINI:
+    NMC-MINI:
       ansible_host: 192.168.20.20  # La IP de tu servidor
       ansible_user: grs    # Usuario con el que te conectas
       ansible_become: true        # Para ejecutar comandos como root (sudo)
