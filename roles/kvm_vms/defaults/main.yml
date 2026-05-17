@@ -8,21 +8,17 @@ vms_base_image_url: "https://github.com/siderolabs/talos/releases/download/v1.7.
 
 vms_list:
   - name: "talos-node-cp"
-    memory: 4096
+    memory: 8192
     vcpus: 4
-    disk_size: 40G
+    disk_size: 20G
   - name: "talos-node-w1"
-    memory: 4096
+    memory: 8192
     vcpus: 4
-    disk_size: 30G
-    disk_size_2: 10G
+    disk_size: 20G
+    disk_size_2: 30G
   - name: "talos-node-w2"
-    memory: 4096
+    memory: 8192
     vcpus: 4
-    disk_size: 30G
-    disk_size_2: 10G
-  - name: "talos-node-w3"
-    memory: 4096
-    vcpus: 4
-    disk_size: 30G
-    disk_size_2: 10G
+    disk_size: 20G
+    disk_size_2: 30G
+
