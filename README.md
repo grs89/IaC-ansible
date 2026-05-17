@@ -1,230 +1,259 @@
-# IaC-Ansible - Infraestructura como Código con Ansible
+# IaC Ansible - Infrastructure as Code
 
-Este proyecto utiliza Ansible para la automatización de tareas de TI y gestión de infraestructura como código.
-
----
-
-## 🎯 Resumen Ejecutivo
-
-### Capacidades del Proyecto
-
-#### Gestión de Servidores
-| Grupo | Descripción |
-|-------|-------------|
-| `ubuntu_servers` | Servidores Ubuntu Server |
-| `k8s_servers` | Cluster Kubernetes (control plane + workers) |
-| `ceph_servers` | Cluster de almacenamiento Ceph |
-| `debian_servers` | Servidores Debian |
-| `container_hosts` | Hosts con Docker/Kubernetes |
-
-#### Playbooks Disponibles
-- **`site.yml`** - Configuración base de servidores
-- **`networking.yml`** - Configuración de red
-- **`install_docker.yml`** - Instalación de Docker
-- **`install_kubernetes.yml`** - Instalación de Kubernetes
-- **`install_ceph.yml`** - Instalación de almacenamiento Ceph
-- **`install_kvm.yml`** - Instalación de virtualización KVM
-- **`deploy_cluster.yml`** - Despliegue de cluster completo (K8s + Base)
-- **`deploy_storage_cluster.yml`** - Despliegue de cluster de almacenamiento
-
-#### Roles Reutilizables (20 roles)
-- **`common/`** - Configuración base
-- **`ssh/`** - Configuración SSH
-- **`networking/`** - Configuración de red
-- **`docker/`** - Instalación Docker
-- **`kubernetes/`** - Instalación Kubernetes  
-- **`ceph/`** - Instalación Ceph
-- **`hardening/`** - Hardening de seguridad
-- **`kvm/`** - Instalación KVM
-
-#### Casos de Uso Típicos
-1. Provisionar un nuevo servidor con configuración base
-2. Crear un cluster Kubernetes completo
-3. Configurar almacenamiento distribuido con Ceph
-4. Instalar Docker en múltiples servidores
-5. Configurar redes estáticas en servidores
-6. Aplicar hardening de seguridad a la infraestructura
-7. Desplegar virtualización KVM
+<div align="center">
+  <a href="#español">🇨🇴 Español</a> | 
+  <a href="#english">🇺🇸 English</a> | 
+  <a href="#português">🇧🇷 Português</a>
+</div>
 
 ---
 
-## Requisitos
+<h2 id="español">🇨🇴 Español</h2>
 
-- Ansible 2.9 o superior
-- Python 3.6 o superior
-- SSH configurado con claves para acceso a servidores
+### Descripción del Proyecto
+Este proyecto utiliza Ansible para automatizar el aprovisionamiento, configuración y gestión de infraestructura como código (IaC). Está diseñado para desplegar clusters de alta disponibilidad, entornos de virtualización y contenedores en múltiples sistemas operativos.
 
-## Instalación
+### Características Principales (🌟)
+- **Despliegue de Clusters Kubernetes:** Configuración automatizada de nodos Control Plane y Workers.
+- **Virtualización KVM:** Instalación del hypervisor KVM y despliegue automatizado de máquinas virtuales (incluyendo Talos OS v1.7.5 de forma nativa).
+- **Almacenamiento Distribuido:** Configuración de clusters Ceph.
+- **Gestión de Contenedores:** Instalación y configuración de Docker.
+- **Configuración Base y Seguridad:** Hardening de servidores, configuración SSH, redes estáticas, bridges de red y acceso remoto gráfico (VNC/xRDP).
+- **Soporte Multi-OS:** Funciona sobre servidores físicos Debian y Ubuntu Server, y aprovisiona máquinas virtuales con Talos OS.
 
-1. Clona este repositorio:
-    ```bash
-    git clone https://github.com/grs89/ansible-1.git
-    cd ansible-1
-    ```
-
-2. Configura tus claves SSH si aún no lo has hecho:
-    ```bash
-    ssh-keygen -t rsa -b 4096
-    ssh-copy-id usuario@servidor
-    ```
-
-3. Para servidores que requieren contraseñas (opcional):
-    ```bash
-    # Crea un archivo vault para credenciales seguras
-    ansible-vault create vault.yml
-    ```
-
-## Uso
-
-### Inventario
-
-El proyecto usa un inventario YAML (`inventory.yml`) con múltiples grupos de servidores:
-
-- **ubuntu_servers**: Servidores Ubuntu Server
-- **k8s_servers**: Cluster de Kubernetes (control plane + workers)
-- **ceph_servers**: Cluster de almacenamiento Ceph
-- **debian_servers**: Servidores Debian
-- **container_hosts**: Hosts con Docker/Kubernetes
-
-### Ejecutar Playbooks
-
-Para ejecutar un playbook:
-```bash
-# Ejemplo: Instalar Docker
-ansible-playbook playbooks/install_docker.yml
-
-# Con contraseña (si se requiere)
-ansible-playbook playbooks/install_docker.yml --ask-become-pass
-
-# Con vault de credenciales
-ansible-playbook playbooks/install_docker.yml --ask-vault-pass
+### Arquitectura Técnica de Alto Nivel
+```mermaid
+graph LR
+    A[Ansible Control Node] -->|SSH| B(Servidores Debian)
+    A -->|SSH| C(Servidores Ubuntu)
+    A -->|SSH| D(Hosts KVM)
+    D -->|Despliegue| E[VMs Talos OS]
+    B --> F[Cluster Ceph]
+    C --> G[Cluster Kubernetes]
+    C --> H[Hosts Docker]
 ```
 
-### Verificar Inventario
+### Stack Tecnológico
+| Capa | Tecnología | Descripción |
+|------|------------|-------------|
+| Orquestación | Ansible | Herramienta principal de automatización IaC y ejecución de playbooks. |
+| Virtualización | KVM / QEMU | Hypervisor para el despliegue de las máquinas virtuales. |
+| OS de Nodos K8s | Talos OS | Sistema operativo inmutable desplegado para clusters de Kubernetes (v1.7.5). |
+| OS Soportados | Debian / Ubuntu | Sistemas operativos base gestionados para los servidores físicos. |
+| Contenedores | Docker / Kubernetes | Plataformas de orquestación de contenedores instaladas en la infraestructura. |
+| Almacenamiento | Ceph | Solución de almacenamiento distribuido configurada vía Ansible. |
 
-```bash
-# Listar todos los hosts
-ansible all --list-hosts
+### Requisitos Previos
+- Ansible 2.9 o superior.
+- Python 3.6 o superior en el host de control.
+- Acceso SSH configurado a los nodos destino mediante intercambio de llaves (`~/.ssh/id_rsa`).
+- Permisos de superusuario (sudo/root) en los servidores destino.
 
-# Verificar conectividad
-ansible all -m ping
-
-# Ver servidores por grupo
-ansible-inventory --graph
-ansible-inventory --host <nombre_del_servidor>
-```
-
-### Variables de Grupo
-
-Las variables específicas por grupo se encuentran en `group_vars/`:
-- `all.yml`: Variables globales
-- `k8s_servers.yml`: Variables para Kubernetes
-- `ceph_servers.yml`: Variables para Ceph
-- `ubuntu_servers.yml`: Variables para Ubuntu
-
-## Estructura del Proyecto
-
-```
-IaC-ansible/
-├── ansible.cfg              # Configuración de Ansible
-├── inventory.yml            # Inventario principal (YAML)
-├── inventory.ini            # Inventario antiguo (obsoleto)
-├── README.md                # Este archivo
-├── LICENSE                  # Licencia Apache 2.0
-│
-├── playbooks/               # Playbooks principales
-│   ├── site.yml            # Configuración base
-│   ├── networking.yml       # Configurar networking
-│   ├── install_docker.yml   # Instalar Docker
-│   ├── install_kubernetes.yml
-│   ├── install_ceph.yml
-│   ├── install_kvm.yml
-│   ├── deploy_cluster.yml
-│   ├── deploy_storage_cluster.yml
-│   └── README.md            # Documentación de playbooks
-│
-├── roles/                   # Roles reutilizables
-│   ├── common/             # Configuración base
-│   ├── ssh/                # Configuración SSH
-│   ├── networking/         # Configuración de red
-│   ├── docker/             # Instalación Docker
-│   ├── kubernetes/         # Instalación Kubernetes
-│   ├── ceph/               # Instalación Ceph
-│   ├── hardening/          # Hardening seguridad
-│   └── kvm/                # Instalación KVM
-│
-├── group_vars/             # Variables por grupo
-│   ├── all.yml
-│   ├── k8s_servers.yml
-│   ├── ceph_servers.yml
-│   └── ubuntu_servers.yml
-│
-└── old/                     # Playbooks antiguos (histórico)
-    ├── 01-debian-ubuntu_server/
-    ├── 02-debian/
-    ├── 02-ubuntu-server/
-    └── inventory.yml
-```
-
-
-## Seguridad
-
-⚠️ **Importante**: Este proyecto NO almacena credenciales en texto plano.
-
-Para servidores que requieren contraseñas:
-
-1. Usa Ansible Vault para encriptar credenciales:
+### Instrucciones de Despliegue (🛠️)
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/grs89/ansible-1.git
+   cd ansible-1
+   ```
+2. Configura el archivo de inventario `inventory.yml` definiendo las IPs, credenciales y variables de red de tus servidores (grupos `ubuntu_servers`, `debian_servers`, `k8s_servers`, `ceph_servers`).
+3. (Opcional) Si usas contraseñas para acceso sudo, crea un archivo Ansible Vault:
    ```bash
    ansible-vault create vault.yml
    ```
 
-2. O ejecuta playbooks con prompts de contraseña:
-   ```bash
-   ansible-playbook playbook.yml --ask-become-pass
-   ```
-
-3. Nunca subas archivos con credenciales al repositorio.
-
-## Ejemplos de Uso
-
-### Configurar red estática en servidores Kubernetes
-```bash
-ansible-playbook old/02-ubuntu-server/02-networking/set_static_ip.yml --ask-become-pass
-```
-
-### Instalar Docker en servidor Ubuntu
-```bash
-ansible-playbook playbooks/install_docker.yml
-```
-
-### Configurar toda la base de servidores
+### Inicio Rápido
+**Ejecutar Configuración Base de Redes y Hardening:**
 ```bash
 ansible-playbook playbooks/site.yml --ask-become-pass
 ```
 
-### Desplegar cluster completo (K8s + Base)
+**Desplegar VMs de Nodos Talos OS en KVM:**
+```bash
+ansible-playbook playbooks/deploy_vms.yml
+```
+
+**Desplegar Cluster de Kubernetes Completo:**
 ```bash
 ansible-playbook playbooks/deploy_cluster.yml --ask-become-pass
 ```
 
-### Crear cluster Kubernetes
+### Ejecución de Pruebas
+Verificar la conectividad con todos los nodos del inventario:
 ```bash
-ansible-playbook old/02-ubuntu-server/03-tools/k8s/install_k8s.yml --ask-become-pass
+# Comprobar el ping en los nodos
+ansible all -m ping
+
+# Ver la estructura jerárquica del inventario
+ansible-inventory --graph
 ```
 
-## Mantenimiento
+### Licencia
+Apache 2.0 License
 
-- El directorio `old/` contiene playbooks históricos que pueden requerir adaptaciones
-- Los roles en `playbooks/roles/` son los mantenidos activamente
-- Revisa las variables en `group_vars/` antes de ejecutar playbooks
+---
 
-## Licencia
+<h2 id="english">🇺🇸 English</h2>
 
-Este proyecto está licenciado bajo la Apache-2.0 License. Consulta el archivo `LICENSE` para más detalles.
+### Project Description
+This project uses Ansible to automate the provisioning, configuration, and management of Infrastructure as Code (IaC). It is designed to deploy high-availability clusters, virtualization environments, and container platforms across multiple operating systems.
 
-## Recursos Adicionales
+### Key Features (🌟)
+- **Kubernetes Cluster Deployment:** Automated setup of Control Plane and Worker nodes.
+- **KVM Virtualization:** Installation of the KVM hypervisor and automated deployment of virtual machines (including native support for Talos OS v1.7.5).
+- **Distributed Storage:** Configuration of Ceph storage clusters.
+- **Container Management:** Docker installation and configuration.
+- **Base Configuration & Security:** Server hardening, SSH setup, static networking, network bridges, and remote graphical access (VNC/xRDP).
+- **Multi-OS Support:** Operates on Debian and Ubuntu Server bare-metal environments, and provisions Talos OS virtual machines.
 
-- [Documentación de Ansible](https://docs.ansible.com/)
-- [Guía de mejores prácticas de Ansible](https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html)
-- [Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
-- [Repositorio de ejemplos de Ansible](https://github.com/ansible/ansible-examples)
+### High-Level Technical Architecture
+```mermaid
+graph LR
+    A[Ansible Control Node] -->|SSH| B(Debian Servers)
+    A -->|SSH| C(Ubuntu Servers)
+    A -->|SSH| D(KVM Hosts)
+    D -->|Deploy| E[Talos OS VMs]
+    B --> F[Ceph Cluster]
+    C --> G[Kubernetes Cluster]
+    C --> H[Docker Hosts]
+```
+
+### Technology Stack
+| Layer | Technology | Description |
+|-------|------------|-------------|
+| Orchestration | Ansible | Core tool for IaC automation and playbook execution. |
+| Virtualization | KVM / QEMU | Hypervisor for virtual machine deployment. |
+| K8s Node OS | Talos OS | Immutable operating system deployed for Kubernetes clusters (v1.7.5). |
+| Supported OS | Debian / Ubuntu | Base operating systems managed on bare-metal servers. |
+| Containers | Docker / Kubernetes | Container orchestration platforms installed on the infrastructure. |
+| Storage | Ceph | Distributed storage solution configured via Ansible. |
+
+### Prerequisites
+- Ansible 2.9 or higher.
+- Python 3.6 or higher on the control host.
+- SSH access configured to target nodes via key exchange (`~/.ssh/id_rsa`).
+- Sudo/root privileges on target servers.
+
+### Deployment Instructions (🛠️)
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/grs89/ansible-1.git
+   cd ansible-1
+   ```
+2. Configure the `inventory.yml` file by defining the IPs, credentials, and network variables of your servers (groups `ubuntu_servers`, `debian_servers`, `k8s_servers`, `ceph_servers`).
+3. (Optional) If using sudo passwords, ensure you create an Ansible Vault file:
+   ```bash
+   ansible-vault create vault.yml
+   ```
+
+### Quick Start
+**Execute Base Networking and Hardening Configuration:**
+```bash
+ansible-playbook playbooks/site.yml --ask-become-pass
+```
+
+**Deploy Talos OS VMs on KVM:**
+```bash
+ansible-playbook playbooks/deploy_vms.yml
+```
+
+**Deploy Complete Kubernetes Cluster:**
+```bash
+ansible-playbook playbooks/deploy_cluster.yml --ask-become-pass
+```
+
+### Testing
+Verify connectivity to all inventory nodes:
+```bash
+# Check ping on all nodes
+ansible all -m ping
+
+# View inventory hierarchical structure
+ansible-inventory --graph
+```
+
+### License
+Apache 2.0 License
+
+---
+
+<h2 id="português">🇧🇷 Português</h2>
+
+### Descrição do Projeto
+Este projeto utiliza Ansible para automatizar o provisionamento, configuração e gerenciamento de Infraestrutura como Código (IaC). Foi projetado para implantar clusters de alta disponibilidade, ambientes de virtualização e plataformas de contêineres em múltiplos sistemas operacionais.
+
+### Principais Características (🌟)
+- **Implantação de Clusters Kubernetes:** Configuração automatizada dos nós Control Plane e Workers.
+- **Virtualização KVM:** Instalação do hypervisor KVM e implantação automatizada de máquinas virtuais (incluindo suporte nativo ao Talos OS v1.7.5).
+- **Armazenamento Distribuído:** Configuração de clusters Ceph.
+- **Gerenciamento de Contêineres:** Instalação e configuração do Docker.
+- **Configuração Base e Segurança:** Hardening de servidores, configuração SSH, redes estáticas, bridges de rede e acesso remoto gráfico (VNC/xRDP).
+- **Suporte Multi-OS:** Opera em ambientes bare-metal Debian e Ubuntu Server, e provisiona máquinas virtuais com Talos OS.
+
+### Arquitetura Técnica de Alto Nível
+```mermaid
+graph LR
+    A[Ansible Control Node] -->|SSH| B(Servidores Debian)
+    A -->|SSH| C(Servidores Ubuntu)
+    A -->|SSH| D(Hosts KVM)
+    D -->|Deploy| E[VMs Talos OS]
+    B --> F[Cluster Ceph]
+    C --> G[Cluster Kubernetes]
+    C --> H[Hosts Docker]
+```
+
+### Stack Tecnológico
+| Camada | Tecnologia | Descrição |
+|--------|------------|-----------|
+| Orquestração | Ansible | Ferramenta principal de automação IaC e execução de playbooks. |
+| Virtualização | KVM / QEMU | Hypervisor para a implantação de máquinas virtuais. |
+| SO dos Nós K8s | Talos OS | Sistema operacional imutável implantado para clusters Kubernetes (v1.7.5). |
+| SO Suportados | Debian / Ubuntu | Sistemas operacionais base gerenciados em servidores bare-metal. |
+| Contêineres | Docker / Kubernetes | Plataformas de orquestração de contêineres instaladas na infraestrutura. |
+| Armazenamento | Ceph | Solução de armazenamento distribuído configurada via Ansible. |
+
+### Pré-requisitos
+- Ansible 2.9 ou superior.
+- Python 3.6 ou superior no host de controle.
+- Acesso SSH configurado para os nós de destino via troca de chaves (`~/.ssh/id_rsa`).
+- Privilégios de superusuário (sudo/root) nos servidores de destino.
+
+### Instruções de Implantação (🛠️)
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/grs89/ansible-1.git
+   cd ansible-1
+   ```
+2. Configure o arquivo `inventory.yml` definindo os IPs, credenciais e variáveis de rede dos seus servidores (grupos `ubuntu_servers`, `debian_servers`, `k8s_servers`, `ceph_servers`).
+3. (Opcional) Se utilizar senhas para o acesso sudo, crie um arquivo Ansible Vault:
+   ```bash
+   ansible-vault create vault.yml
+   ```
+
+### Início Rápido
+**Executar Configuração Base de Rede e Hardening:**
+```bash
+ansible-playbook playbooks/site.yml --ask-become-pass
+```
+
+**Implantar VMs Talos OS no KVM:**
+```bash
+ansible-playbook playbooks/deploy_vms.yml
+```
+
+**Implantar Cluster Kubernetes Completo:**
+```bash
+ansible-playbook playbooks/deploy_cluster.yml --ask-become-pass
+```
+
+### Execução de Testes
+Verifique a conectividade com todos os nós do inventário:
+```bash
+# Verificar ping em todos os nós
+ansible all -m ping
+
+# Visualizar a estrutura hierárquica do inventário
+ansible-inventory --graph
+```
+
+### Licença
+Apache 2.0 License
